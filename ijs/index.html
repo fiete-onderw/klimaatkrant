@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Klimaatkrant IJsklimaat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bitter:wght@600;800&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+/* Een krant/onderzoeksdossier: dikke zwarte lijnen, kolommen, weinig kaders. Blauw = oorzaak, rood = gevolg (zoals op het werkblad). */
+:root{
+  --papier:#F2F4F3;
+  --vel:#FFFFFF;
+  --inkt:#161A1D;
+  --grijs:#5E666C;
+  --oorzaak:#185FA5;
+  --gevolg:#A32D2D;
+  --memo:#FFE680;
+  --kop:"Bitter", Georgia, serif;
+  --tekst:"Atkinson Hyperlegible", Verdana, sans-serif;
+  --hand:"Caveat", "Comic Sans MS", cursive;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--papier);color:var(--inkt);font-family:var(--tekst);font-size:19px;line-height:1.55}
+a{color:var(--oorzaak);text-underline-offset:3px}
+h1,h2,h3{font-family:var(--kop);line-height:1.12;text-wrap:balance;margin:0}
+p{margin:0}
+.blad{max-width:1080px;margin:0 auto;background:var(--vel);padding:0 clamp(16px,4vw,48px) 40px;border-left:1px solid #D9DEDB;border-right:1px solid #D9DEDB}
+.lijn{border:0;border-top:3px solid var(--inkt);margin:0}
+.lijn.dun{border-top-width:1px}
+.bron{font-size:14px;color:var(--grijs)}
+.hand{font-family:var(--hand);font-size:26px;line-height:1.1;color:var(--gevolg)}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid #F2B705;outline-offset:3px}
+section{padding:34px 0 30px}
+.rubriek{font-family:var(--kop);font-weight:800;font-size:15px;letter-spacing:.12em;text-transform:uppercase;padding-bottom:6px;border-bottom:3px solid currentColor;display:inline-block;margin-bottom:14px}
+.rubriek.o{color:var(--oorzaak)}
+.rubriek.g{color:var(--gevolg)}
+
+/* Krantenkop */
+.kopbalk{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 20px;font-size:15px;padding:12px 0;color:var(--grijs)}
+.kopbalk nav a{color:var(--grijs);text-decoration:none}
+.kopbalk nav a.nu{color:var(--inkt);font-weight:700;text-decoration:underline}
+.titel{font-family:var(--kop);font-weight:800;font-size:clamp(40px,7vw,76px);letter-spacing:-.01em;padding:6px 0 4px}
+.editie{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:15px;padding:6px 0;border-top:1px solid var(--inkt);border-bottom:3px double var(--inkt)}
+.voorpagina{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:28px;padding:24px 0 8px;align-items:start}
+@media (max-width:780px){.voorpagina{grid-template-columns:1fr}}
+.voorpagina h1{font-size:clamp(32px,5vw,52px)}
+.lead{font-size:21px;margin-top:12px}
+.memo{background:var(--memo);padding:18px 20px 20px;transform:rotate(-1.5deg);box-shadow:2px 3px 0 rgba(0,0,0,.12);font-weight:700;font-size:21px}
+.memo small{display:block;font-family:var(--hand);font-weight:600;font-size:24px;margin-bottom:4px}
+
+/* Keten */
+.keten{display:grid;grid-template-columns:1fr auto 1.2fr auto 1fr;gap:10px;align-items:stretch;margin-top:8px}
+@media (max-width:780px){.keten{grid-template-columns:1fr}.keten .pijltje{transform:rotate(90deg);justify-self:center}}
+.schakel{border:3px solid var(--inkt);padding:14px 16px}
+.schakel b{display:block;font-family:var(--kop);font-size:22px;line-height:1.15;margin-bottom:4px}
+.schakel.o{border-color:var(--oorzaak);background:#E7F0F9}
+.schakel.o b{color:var(--oorzaak)}
+.schakel.g{border-color:var(--gevolg);background:#FAECEC}
+.schakel.g b{color:var(--gevolg)}
+.pijltje{font-size:38px;font-weight:700;align-self:center;color:var(--grijs)}
+
+/* Oorzaak */
+.oorzaakkop{font-size:clamp(34px,5.5vw,56px);color:var(--oorzaak)}
+.kolommen{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;margin-top:20px}
+@media (max-width:780px){.kolommen{grid-template-columns:1fr}}
+.kolommen h3{font-size:24px;margin-bottom:8px}
+.feitjes{list-style:none;padding:0;margin:0;border-top:1px solid var(--inkt)}
+.feitjes li{padding:10px 0;border-bottom:1px solid #C9CFCB;display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:baseline}
+.feitjes b{font-family:var(--kop);font-size:24px;color:var(--oorzaak)}
+.slider{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+input[type=range]{width:100%;accent-color:var(--gevolg);height:34px}
+.stand{display:flex;justify-content:space-between;font-size:15px;color:var(--grijs)}
+#grondTekst{font-weight:700;border-left:5px solid var(--gevolg);padding:6px 14px;min-height:3.4em}
+.knoppen{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.knoppen button{border:2px solid var(--inkt);background:var(--vel);padding:6px 14px;font-weight:700}
+.knoppen button[aria-pressed="true"]{background:var(--inkt);color:#fff}
+svg{display:block;max-width:100%;height:auto}
+.snelheid{display:grid;grid-template-columns:150px 1fr;gap:8px 12px;align-items:center;font-weight:700;margin-top:8px}
+.snelheid i{display:block;height:22px;background:var(--oorzaak)}
+#plekInfo{border-left:5px solid var(--oorzaak);padding:8px 16px;min-height:8em}
+.kaartvak{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start;margin-top:12px}
+@media (max-width:780px){.kaartvak{grid-template-columns:1fr}}
+.pin{cursor:pointer}
+
+/* Gevolgen */
+.gevolgkop{font-size:clamp(30px,4.5vw,46px);color:var(--gevolg)}
+.gevolg{display:grid;grid-template-columns:90px minmax(0,1fr) minmax(0,220px);gap:20px;padding:24px 0;border-bottom:1px solid #C9CFCB;align-items:start}
+.gevolg:nth-of-type(even){grid-template-columns:90px minmax(0,220px) minmax(0,1fr)}
+.gevolg:nth-of-type(even) .tek{order:3}
+.gevolg:nth-of-type(even) .plaat{order:2}
+@media (max-width:780px){.gevolg,.gevolg:nth-of-type(even){grid-template-columns:56px 1fr}.gevolg .plaat{grid-column:2;order:3!important}}
+.nr{font-family:var(--kop);font-weight:800;font-size:72px;line-height:.9;color:var(--gevolg)}
+@media (max-width:780px){.nr{font-size:48px}}
+.tek h3{font-size:26px;color:var(--gevolg);margin-bottom:8px}
+.doordat{font-weight:700;margin-bottom:8px}
+.doordat em{font-style:normal;color:var(--oorzaak)}
+.cijfer{margin-top:10px;padding:8px 0 0;border-top:2px solid var(--gevolg);font-weight:700}
+.plaat svg{width:100%;height:auto}
+.voorlees{margin-top:10px;border:2px solid var(--inkt);background:var(--vel);padding:4px 12px;font-size:15px;font-weight:700}
+.voorlees[hidden]{display:none}
+
+/* Kringloop */
+.kring text{font-family:var(--tekst);font-size:15px;font-weight:700}
+
+/* Kijk zelf */
+.lijstje{list-style:none;padding:0;margin:0}
+.lijstje li{border-bottom:1px solid #C9CFCB}
+.lijstje a{display:grid;grid-template-columns:1fr auto;gap:12px;padding:14px 0;text-decoration:none;color:var(--inkt)}
+.lijstje a b{font-family:var(--kop);font-size:22px;display:block}
+.lijstje a:hover b{text-decoration:underline}
+.lijstje .ga{font-size:28px;color:var(--oorzaak);align-self:center}
+
+/* Toets: wit vel, zwarte randen, goed = donkergroen met wit, fout = donkerrood met wit (contrast > 6:1) */
+.toets{background:#fff;border:3px solid var(--inkt);padding:22px clamp(14px,3vw,28px);display:flex;flex-direction:column;gap:0}
+.vraag{padding:16px 0;border-bottom:1px solid #9AA6AE}
+.vraag:last-child{border-bottom:0}
+.vraag b{display:block;font-size:20px;margin-bottom:10px}
+.opties{display:flex;flex-direction:column;gap:8px}
+.opties button{text-align:left;background:#fff;color:var(--inkt);border:2px solid var(--inkt);padding:10px 14px;font-weight:700}
+.opties button:hover{background:#E7F0F9}
+.opties button[disabled]{cursor:default}
+.opties button[disabled]:not(.goed):not(.fout){color:#4A5257;border-color:#9AA6AE;background:#fff}
+.opties button.goed{background:#1E6B2F;border-color:#1E6B2F;color:#fff}
+.opties button.fout{background:#A32D2D;border-color:#A32D2D;color:#fff}
+.terug{font-weight:700;margin-top:10px;padding:8px 12px;background:#F2F4F3;border-left:6px solid var(--inkt)}
+.terug:empty{display:none}
+.terug.ok{border-left-color:#1E6B2F}
+.terug.nee{border-left-color:#A32D2D}
+#score{font-family:var(--kop);font-weight:800;font-size:26px;color:var(--inkt)}
+/* Woorduitleg */
+.woord{border:0;background:none;padding:0;color:inherit;font-weight:700;border-bottom:3px dotted var(--oorzaak);cursor:help}
+.pop{position:fixed;z-index:10;max-width:300px;background:var(--inkt);color:#fff;padding:12px 14px;font-size:16px}
+.pop[hidden]{display:none}
+
+footer ol{padding-left:20px;font-size:15px;color:var(--grijs)}
+footer li{margin-bottom:4px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="blad">
+
+<!-- KRANTENKOP -->
+<header>
+  <div class="kopbalk">
+    <a href="../" style="color:var(--grijs)">&larr; Alle klimaten</a>
+    <nav aria-label="Andere klimaten">
+      <a href="../regenwoud/">Regenwoud</a> / <span title="Deze krant komt nog">Savanne</span> / <a href="../woestijn/">Woestijn</a> / <span title="Deze krant komt nog">Steppe</span> / <span title="Deze krant komt nog">Zee</span> / <a href="../land/">Land</a> / <a href="../toendra/">Toendra</a> / <a class="nu" href="./" aria-current="page">IJs</a>
+    </nav>
+  </div>
+  <hr class="lijn">
+  <div class="titel">De Klimaatkrant</div>
+  <div class="editie"><span>Editie: het ijsklimaat</span><span>Groenland en Antarctica</span><span>Echte feiten, met bronnen</span></div>
+</header>
+
+<div class="voorpagina">
+  <div>
+    <h1>Groenland verliest zeven keer zoveel ijs</h1>
+    <p class="lead">Groenland en Antarctica liggen onder een enorme laag ijs. Die ijskappen smelten steeds sneller. Het smeltwater stroomt naar zee, en dat merken we ook in Nederland.</p>
+  </div>
+  <div class="memo"><small>Jullie onderzoeksvraag:</small>Wat doet klimaatverandering met het ijsklimaat?</div>
+</div>
+
+<!-- KETEN -->
+<section aria-labelledby="ketenkop">
+  <hr class="lijn">
+  <h2 id="ketenkop" style="font-size:28px;margin:18px 0 6px">Zo hangt het samen</h2>
+  <p>Lees het schema van links naar rechts.</p>
+  <div class="keten">
+    <div class="schakel"><b>Klimaatverandering</b>Het wordt warmer op aarde, en rond de Noordpool extra snel.</div>
+    <div class="pijltje" aria-hidden="true">→</div>
+    <div class="schakel o"><b>De oorzaak: de ijskappen smelten</b>Er verdwijnt meer ijs dan er sneeuw bijkomt.</div>
+    <div class="pijltje" aria-hidden="true">→</div>
+    <div class="schakel g"><b>De gevolgen</b>De zee stijgt, ook bij Nederland, een berg stortte in zee en Groenland wordt groener.</div>
+  </div>
+  <p class="hand" style="margin-top:12px">Gebruik dit schema bij je werkblad!</p>
+</section>
+
+<!-- OORZAAK -->
+<section id="oorzaak">
+  <hr class="lijn">
+  <div style="margin-top:22px"><span class="rubriek o">De oorzaak</span></div>
+  <h2 class="oorzaakkop">De ijskappen smelten</h2>
+
+  <div class="kolommen">
+    <div>
+      <h3>Wat is een ijskap?</h3>
+      <p>Een <button class="woord" type="button" data-u="Een heel dikke laag ijs die een groot stuk land bedekt.">ijskap</button> is een enorme laag ijs op het land. Hij is in duizenden jaren ontstaan uit sneeuw die bleef liggen. Er zijn twee ijskappen op aarde: op Groenland en op Antarctica, bij de Zuidpool. Let op: dit is iets anders dan <button class="woord" type="button" data-u="Bevroren zeewater dat op de zee drijft. Als zee-ijs smelt, stijgt de zee niet. Als landijs smelt, wel.">zee-ijs</button>.</p>
+      <ul class="feitjes" style="margin-top:14px">
+        <li><b>3 km</b><span>Zo dik is de ijskap van Groenland op de dikste plek, en nog iets meer.</span></li>
+        <li><b>7 meter</b><span>Zoveel zou de zee stijgen als al het ijs op Groenland smelt (ruim 7 meter).</span></li>
+        <li><b>58 meter</b><span>Zoveel zou de zee stijgen als al het ijs op Antarctica smelt. Dat gebeurt niet in een paar jaar.</span></li>
+      </ul>
+      <p class="bron" style="margin-top:8px">Bron: NSIDC.</p>
+    </div>
+    <div>
+      <h3>Wat betekent smelten van een ijskap?</h3>
+      <p>Elke winter valt er sneeuw op de ijskap. Elke zomer smelt er ijs en breken er ijsbergen af. Zolang dat even veel is, blijft de ijskap even groot. Maar nu verdwijnt er elk jaar veel meer ijs dan er bijkomt. Schuif en kijk wat er gebeurt.</p>
+      <svg id="scene" viewBox="0 0 640 360" role="img" aria-label="Tekening van een ijskap op rotsen aan de kust, met zee en ijsbergen" style="margin-top:10px">
+        <rect id="lucht" width="640" height="360" fill="#DCEAF0"/>
+        <circle id="zonbol" cx="575" cy="52" r="24" fill="#F2B705"/>
+        <path d="M0 232 L420 232 Q452 244 470 360 L0 360Z" fill="#6E6A64"/>
+                <g id="ijskap" transform="translate(0 232) scale(1 1) translate(0 -232)">
+          <path id="ijs" d="M0 232 L0 70 Q220 36 370 132 Q430 176 486 236 L486 262 L436 262 L424 232Z" fill="#F7FAFC" stroke="#8FB8CC" stroke-width="3"/>
+          <g id="smelt" opacity="0" fill="#5E9AC0">
+            <ellipse cx="150" cy="78" rx="26" ry="6"/><ellipse cx="260" cy="96" rx="20" ry="5"/><ellipse cx="80" cy="74" rx="16" ry="4"/>
+            <path d="M260 100 Q300 130 340 140 Q380 170 420 206" fill="none" stroke="#5E9AC0" stroke-width="5"/>
+          </g>
+        </g>
+        <g id="planten" opacity="0" fill="#3F7D4E"><path d="M386 232 Q392 214 398 232Z"/><path d="M400 232 Q407 210 414 232Z"/></g>
+        <g id="zeegroep">
+          <rect id="zee" x="400" y="250" width="240" height="110" fill="#3E7FA8"/>
+          <g id="bergen" fill="#F7FAFC" stroke="#8FB8CC" stroke-width="2">
+            <path id="b1" d="M500 250 L512 228 L530 236 L540 250Z"/>
+            <path id="b2" d="M556 250 L566 236 L582 250Z" opacity="0"/>
+            <path id="b3" d="M592 250 L600 232 L616 240 L624 250Z" opacity="0"/>
+          </g>
+        </g>
+        <g font-family="Atkinson Hyperlegible, Verdana, sans-serif">
+          <rect x="560" y="196" width="10" height="120" fill="#fff" stroke="#161A1D" stroke-width="2"/>
+          <g stroke="#161A1D" stroke-width="2"><path d="M560 220 L570 220 M560 240 L570 240 M560 260 L570 260 M560 280 L570 280 M560 300 L570 300"/></g>
+          <path d="M548 250 L590 250" stroke="#161A1D" stroke-width="3" stroke-dasharray="5 3"/>
+          <text x="575" y="246" font-size="14" font-weight="700" fill="#161A1D">vroeger</text>
+          <text x="140" y="214" font-size="15" font-weight="700" fill="#161A1D">ijskap</text>
+          <text x="16" y="350" font-size="15" font-weight="700" fill="#fff">rots</text>
+          <text x="470" y="345" font-size="15" font-weight="700" fill="#fff">zee</text>
+        </g>
+      </svg>
+      <div class="slider">
+        <label for="warm"><b>Hoeveel warmer?</b></label>
+        <input type="range" id="warm" min="0" max="3" step="1" value="0">
+        <div class="stand"><span>Vroeger</span><span>Iets warmer</span><span>Warmer</span><span>Nog warmer</span></div>
+      </div>
+      <p id="grondTekst" aria-live="polite"></p>
+      <p class="bron">Tekening, niet op schaal. Bron: NSIDC; IMBIE (2019); climate.gov; Universiteit van Leeds (2024).</p>
+    </div>
+  </div>
+
+  <hr class="lijn dun" style="margin-top:30px">
+  <div class="kolommen">
+    <div>
+      <h3>Waarom smelten de ijskappen?</h3>
+      <p>Door <b>klimaatverandering</b>. Mensen verbranden olie, gas en kolen. Daarbij komen <button class="woord" type="button" data-u="Een gas in de lucht dat warmte vasthoudt, net als een deken. CO₂ en methaan zijn broeikasgassen.">broeikasgassen</button> in de lucht. Die werken als een deken om de aarde. Daardoor wordt het warmer. Kies een jaar.</p>
+      <div class="knoppen" role="group" aria-label="Kies een jaar">
+        <button type="button" id="j1850" aria-pressed="true">Rond 1850</button>
+        <button type="button" id="j2024" aria-pressed="false">2024</button>
+      </div>
+      <svg id="broeikas" viewBox="0 0 640 250" role="img" aria-label="De aarde met een laag broeikasgassen eromheen">
+        <rect width="640" height="250" fill="#1C3A55"/>
+        <circle cx="70" cy="58" r="30" fill="#F2B705"/>
+        <g stroke="#F2B705" stroke-width="5" stroke-linecap="round"><line x1="105" y1="76" x2="210" y2="180"/><line x1="96" y1="90" x2="160" y2="190"/></g>
+        <path id="deken" d="M0 125 Q320 55 640 125 L640 148 Q320 78 0 148Z" fill="#B9DCEB" opacity=".25"/>
+        <path d="M0 205 Q320 145 640 205 L640 250 L0 250Z" fill="#3F7D4E"/>
+        <g id="warmte" stroke="#E0533B" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M360 178 L410 30"/><path class="terug" d="M300 176 L328 106 L356 172" opacity=".15"/><path class="terug" d="M480 180 L506 110 L536 176" opacity=".15"/>
+        </g>
+        <g transform="translate(596 30)"><rect x="-9" y="0" width="18" height="110" rx="9" fill="#fff"/><rect id="kwik" x="-5" y="64" width="10" height="42" rx="5" fill="#E0533B"/><circle cy="112" r="13" fill="#E0533B"/></g>
+      </svg>
+      <p class="bron" style="margin-top:4px">Geel = zonlicht. Rood = warmte die de aarde terugstuurt.</p>
+      <p id="broeikasTekst" aria-live="polite" style="margin-top:8px;min-height:4.6em"></p>
+    </div>
+    <div>
+      <h3>Waarom gaat het in het noorden zo snel?</h3>
+      <p>Wit ijs en sneeuw kaatsen zonlicht terug, net als een spiegel. Maar doordat het warmer wordt, smelt de sneeuw eerder. Dan neemt donker ijs, water of land de warmte juist op. Ook warmer zeewater laat de <button class="woord" type="button" data-u="Een rivier van ijs die heel langzaam van de ijskap naar beneden schuift, vaak tot in zee.">gletsjers</button> aan de onderkant smelten.</p>
+      <div class="snelheid" aria-label="Hoe snel het warmer wordt sinds 1979">
+        <span>Aarde gemiddeld</span><i style="width:25%"></i>
+        <span>Noordpoolgebied</span><i style="width:96%"></i>
+      </div>
+      <p style="margin-top:8px">Sinds 1979 wordt het rond de Noordpool <b>bijna 4 keer zo snel</b> warmer als gemiddeld op aarde.</p>
+      <p class="bron">Bron: Rantanen e.a. (2022); IMBIE (2019).</p>
+
+      <h3 style="margin-top:22px">Waar gebeurt het?</h3>
+      <p>Klik op een rood punt.</p>
+    </div>
+  </div>
+
+  <div class="kaartvak">
+    <svg viewBox="0 0 560 560" role="img" aria-label="Kaart van Groenland en Europa met twee plekken en Nederland">
+      <path d="M280,840L260.4,839.6L240.9,838.6L221.4,836.9L202.0,834.5L182.7,831.4L163.5,827.7L144.5,823.3L125.6,818.3L106.9,812.5L88.4,806.2L70.2,799.2L52.2,791.5L34.5,783.3L17.0,774.4L0,764.9L-16.7,754.9L-33.1,744.2L-49.1,733.0L-64.7,721.2L-79.9,708.9L-94.7,696.1L-109.0,682.8L-122.8,669.0L-136.1,654.7L-148.9,639.9L-161.2,624.7L-173.0,609.1L-184.2,593.1L-194.9,576.7L-204.9,560L-214.4,542.9L-223.3,525.4L-231.5,507.7L-239.2,489.7L-246.2,471.5L-252.5,453.0L-258.3,434.3L-263.3,415.4L-267.7,396.4L-271.4,377.2L-274.5,357.9L-276.9,338.5L-278.6,319.0L-279.6,299.5L-280,280L-279.6,260.4L-278.6,240.9L-276.9,221.4L-274.5,202.0L-271.4,182.7L-267.7,163.5L-263.3,144.5L-258.3,125.6L-252.5,106.9L-246.2,88.4L-239.2,70.2L-231.5,52.2L-223.3,34.5L-214.4,17.0L-204.9,0L-194.9,-16.7L-184.2,-33.1L-173.0,-49.1L-161.2,-64.7L-148.9,-79.9L-136.1,-94.7L-122.8,-109.0L-109.0,-122.8L-94.7,-136.1L-79.9,-148.9L-64.7,-161.2L-49.1,-173.0L-33.1,-184.2L-16.7,-194.9L0,-204.9L17.0,-214.4L34.5,-223.3L52.2,-231.5L70.2,-239.2L88.4,-246.2L106.9,-252.5L125.6,-258.3L144.5,-263.3L163.5,-267.7L182.7,-271.4L202.0,-274.5L221.4,-276.9L240.9,-278.6L260.4,-279.6L280,-280L299.5,-279.6L319.0,-278.6L338.5,-276.9L357.9,-274.5L377.2,-271.4L396.4,-267.7L415.4,-263.3L434.3,-258.3L453.0,-252.5L471.5,-246.2L489.7,-239.2L507.7,-231.5L525.4,-223.3L542.9,-214.4L560,-204.9L576.7,-194.9L593.1,-184.2L609.1,-173.0L624.7,-161.2L639.9,-148.9L654.7,-136.1L669.0,-122.8L682.8,-109.0L696.1,-94.7L708.9,-79.9L721.2,-64.7L733.0,-49.1L744.2,-33.1L754.9,-16.7L764.9,0L774.4,17.0L783.3,34.5L791.5,52.2L799.2,70.2L806.2,88.4L812.5,106.9L818.3,125.6L823.3,144.5L827.7,163.5L831.4,182.7L834.5,202.0L836.9,221.4L838.6,240.9L839.6,260.4L840,280L839.6,299.5L838.6,319.0L836.9,338.5L834.5,357.9L831.4,377.2L827.7,396.4L823.3,415.4L818.3,434.3L812.5,453.0L806.2,471.5L799.2,489.7L791.5,507.7L783.3,525.4L774.4,542.9L764.9,560L754.9,576.7L744.2,593.1L733.0,609.1L721.2,624.7L708.9,639.9L696.1,654.7L682.8,669.0L669.0,682.8L654.7,696.1L639.9,708.9L624.7,721.2L609.1,733.0L593.1,744.2L576.7,754.9L560,764.9L542.9,774.4L525.4,783.3L507.7,791.5L489.7,799.2L471.5,806.2L453.0,812.5L434.3,818.3L415.4,823.3L396.4,827.7L377.2,831.4L357.9,834.5L338.5,836.9L319.0,838.6L299.5,839.6L280,840Z" fill="#DCEAF0"/>
+      <path d="M90.3,-246.8L97.1,-247.8L104.8,-246.1L113.3,-241.9L122.8,-235.0L143.9,-213.5L167.7,-182.3L193.7,-141.9L221.5,-93.0L250.4,-36.8L280,25.7M-70.4,-156.8L-59.4,-163.5L-46.4,-167.8L-31.6,-169.5L-15.0,-168.6L3.2,-165.2L23.0,-159.3L44.3,-150.8L67.0,-139.9L90.9,-126.5L115.8,-110.9L168.4,-73.0L223.5,-27.1L280,25.7M-200.8,-6.9L-189.6,-22.0L-175.0,-35.0L-157.3,-45.7L-136.5,-54.3L-112.9,-60.4L-86.5,-64.2L-57.5,-65.6L-26.2,-64.6L7.1,-61.2L42.5,-55.5L79.5,-47.3L117.9,-36.9L157.4,-24.3L197.8,-9.6L238.7,7.1L280,25.7M-273.1,192.7L-267.0,169.8L-256.1,147.9L-240.5,127.1L-220.3,107.7L-195.7,89.8L-167.0,73.5L-134.3,59.1L-98.0,46.6L-58.3,36.2L-15.7,27.9L29.4,21.8L76.8,17.9L126.0,16.4L176.6,17.2L228.0,20.3L280,25.7M-264.7,409.9L-267,397.0L-267.7,383.7L-265.1,358.3L-257.2,332.1L-244.1,305.4L-226.0,278.5L-203.0,251.6L-175.4,225.0L-143.4,198.9L-107.3,173.5L-67.4,149.2L-24.3,126.2L21.7,104.6L70.3,84.8L120.9,66.8L173.1,50.8L226.3,37.1L280,25.7M-178.4,601.5L-185.6,589.2L-190.7,575.5L-193.8,560.5L-194.9,544.4L-192.6,518.2L-185.7,489.7L-174.4,459.2L-158.7,426.9L-138.8,393.3L-114.8,358.6L-87.1,323.1L-55.8,287.1L-21.2,251.2L16.1,215.5L56.1,180.4L98.2,146.3L142.1,113.4L187.3,82.2L233.4,52.9L280,25.7M-39.9,739.6L-50.7,728.9L-58.5,714.2L-63.2,695.6L-64.7,673.1L-63.1,646.3L-58.1,616.0L-49.9,582.4L-38.5,545.9L-24.0,506.9L-6.6,465.6L13.4,422.6L36.2,378.2L61.2,332.9L88.4,287.0L117.4,241.1L148.0,195.5L179.9,150.8L212.7,107.3L246.2,65.5L280,25.7M124.2,817.9L120.2,815.8L116.7,812.0L111.3,799.3L108.0,780.1L106.9,754.5L110.2,695.8L120.1,621.1L136.1,533.3L157.6,435.7L183.8,332.2L213.7,226.7L246.2,123.2L280,25.7M297.4,839.7L299.0,824.2L299.5,778.6L298.0,643.4L293.8,452.8L287.4,235.9L280,25.7M469.6,806.8L474.3,804.3L478.3,800.1L484.6,787.0L488.5,767.8L489.7,742.6L488.7,715.4L485.7,684.1L473.8,610.1L454.4,523.4L428.3,427.3L396.5,325.6L360.2,222.1L320.9,120.9L280,25.7M630.4,716.8L640.9,705.3L648.5,690.5L653.1,672.2L654.7,650.8L652.9,624.0L647.5,594.0L638.5,561.0L626.1,525.2L610.4,487.1L591.5,447.0L569.6,405.3L544.9,362.4L517.7,318.7L488.1,274.6L456.6,230.5L423.3,187.0L388.7,144.3L353.1,102.9L316.7,63.3L280,25.7M760.8,566.9L766.8,555.1L771.0,542.4L773.5,528.7L774.4,514.2L772.0,488.2L764.9,460.1L753.1,430.3L736.8,399.1L716.0,366.7L691.1,333.5L662.2,299.7L629.6,265.8L593.6,232.0L554.7,198.7L513.0,166.2L469.2,134.7L423.5,104.7L376.4,76.3L328.4,49.9L280,25.7M833.1,367.2L834.5,349.4L831.8,324.1L823.8,298.5L810.6,272.6L792.3,246.8L769.0,221.3L741.0,196.4L708.6,172.3L672.1,149.3L631.8,127.5L588.0,107.1L541.4,88.5L492.2,71.6L440.9,56.8L388.1,44.1L334.3,33.7L280,25.7M824.7,150.0L817.1,128.4L805.0,108.1L788.6,89.3L767.9,72.0L743.0,56.5L714.3,42.8L682.0,31.1L646.3,21.6L607.5,14.1L566.0,9.0L522.1,6.0L476.1,5.4L428.6,7.1L379.7,11.1L330.0,17.3L280,25.7M738.4,-41.5L726.8,-54.8L712.2,-65.9L694.7,-74.7L674.4,-81.1L651.5,-85.2L626.2,-86.7L598.5,-85.9L568.7,-82.6L537.0,-76.8L503.5,-68.7L468.6,-58.3L432.4,-45.6L395.2,-30.7L357.2,-13.8L318.7,5.0L280,25.7M599.9,-179.6L589.5,-184.9L577.3,-187.7L563.6,-188.0L548.2,-185.6L531.4,-180.7L513.2,-173.2L493.7,-163.2L473.1,-150.8L428.6,-118.9L380.9,-78.2L331.0,-29.6L280,25.7M435.7,-257.9L430.0,-258.1L423.6,-255.7L416.5,-250.6L408.8,-243.0L391.4,-220.1L371.8,-187.4L350.5,-145.5L327.8,-95.4L304.1,-37.9L280,25.7M262.5,-279.7L265.6,-258.7L269.7,-197.3L274.6,-100.0L280,25.7M-88.1,701.9L-78.8,709.8L-61.7,723.4L-43.9,736.4L-25.5,748.6L-6.6,760.1L12.9,770.9L32.9,780.9L53.4,790.1L74.3,798.5L95.7,806.1L117.3,812.8L139.3,818.7L161.6,823.8L184.1,827.9L206.7,831.2L229.5,833.6L252.4,835.1L275.4,835.8L298.3,835.5L321.2,834.3L344.1,832.3L366.8,829.3L389.4,825.5L411.7,820.8L433.8,815.3L455.6,808.9L477.1,801.6L498.2,793.6L518.9,784.7L539.1,775.0L558.8,764.5L578.0,753.3L596.6,741.4L614.7,728.7L632.1,715.3L648.2,701.8M-237.3,494.2L-231.3,508.2L-221.8,527.9L-211.3,547.2L-199.9,566.1L-187.6,584.5L-174.4,602.4L-160.4,619.8L-145.5,636.7L-129.8,652.9L-113.3,668.5L-96.1,683.5L-78.1,697.7L-59.5,711.3L-40.2,724.1L-20.3,736.2L0.0,747.5L21.0,758.0L42.5,767.6L64.5,776.4L86.8,784.4L109.5,791.4L132.6,797.6L155.9,802.9L179.4,807.3L203.2,810.7L227.1,813.2L251.1,814.8L275.1,815.5L299.2,815.2L323.2,814.0L347.2,811.8L371.0,808.7L394.6,804.7L418.0,799.8L441.2,794.0L464.0,787.3L486.5,779.7L508.7,771.2L530.3,761.9L551.5,751.8L572.2,740.8L592.3,729.1L611.8,716.5L630.7,703.3L649.0,689.3L666.5,674.6L683.3,659.2L699.3,643.2L714.5,626.6L728.9,609.4L742.5,591.7L755.1,573.5L766.9,554.8L777.7,535.6L787.6,516.1L796.5,496.2L797.4,494.2M-280,280L-279.6,297.4L-278.2,319.1L-275.8,340.8L-272.3,362.3L-267.7,383.7L-262.1,404.9L-255.5,425.8L-247.8,446.5L-239.2,466.9L-229.5,486.9L-218.9,506.5L-207.3,525.7L-194.9,544.4L-181.5,562.6L-167.2,580.2L-152.1,597.3L-136.1,613.8L-119.4,629.7L-101.9,644.9L-83.6,659.4L-64.7,673.1L-45.1,686.2L-24.9,698.4L-4.2,709.9L17.0,720.5L38.9,730.3L61.1,739.2L83.8,747.3L106.9,754.5L130.3,760.8L154.0,766.1L177.9,770.6L202.0,774.1L226.3,776.6L250.6,778.2L275.1,778.9L299.5,778.6L323.9,777.4L348.2,775.2L372.4,772.1L396.4,768.0L420.2,763.0L443.7,757.1L466.9,750.3L489.7,742.6L512.2,734.0L534.2,724.5L555.7,714.2L576.7,703.1L597.1,691.2L617.0,678.4L636.2,665.0L654.7,650.8L672.5,635.8L689.5,620.2L705.8,604.0L721.2,587.1L735.9,569.7L749.6,551.7L762.5,533.2L774.4,514.2L785.4,494.8L795.4,474.9L804.5,454.7L812.5,434.1L819.6,413.3L825.6,392.2L830.6,370.9L834.5,349.4L837.4,327.8L839.2,306.1L839.9,284.3L840,280M-237.4,65.7L-244.5,84.0L-251.4,104.5L-257.3,125.3L-262.2,146.3L-266.1,167.4L-268.9,188.7L-270.7,210.1L-271.4,231.5L-271.1,253.0L-269.7,274.4L-267.3,295.7L-263.9,316.9L-259.4,338.0L-253.9,358.8L-247.3,379.5L-239.8,399.8L-231.3,419.9L-221.8,439.6L-211.3,458.9L-199.9,477.8L-187.6,496.2L-174.4,514.1L-160.4,531.5L-145.5,548.4L-129.8,564.6L-113.3,580.2L-96.1,595.2L-78.1,609.5L-59.5,623.0L-40.2,635.8L-20.3,647.9L0.0,659.2L21.0,669.7L42.5,679.3L64.5,688.1L86.8,696.1L109.5,703.1L132.6,709.3L155.9,714.6L179.4,719.0L203.2,722.4L227.1,724.9L251.1,726.5L275.1,727.2L299.2,726.9L323.2,725.7L347.2,723.5L371.0,720.4L394.6,716.4L418.0,711.5L441.2,705.7L464.0,699.0L486.5,691.4L508.7,682.9L530.3,673.6L551.5,663.5L572.2,652.5L592.3,640.8L611.8,628.2L630.7,615.0L649.0,601.0L666.5,586.3L683.3,570.9L699.3,554.9L714.5,538.3L728.9,521.2L742.5,503.4L755.1,485.2L766.9,466.5L777.7,447.3L787.6,427.8L796.5,407.9L804.5,387.6L811.4,367.1L817.3,346.3L822.2,325.4L826.1,304.2L828.9,282.9L830.7,261.5L831.4,240.1L831.1,218.7L829.7,197.2L827.3,175.9L823.9,154.7L819.4,133.6L813.9,112.8L807.3,92.1L799.8,71.8L797.3,65.7M-88.2,-141.8L-88.8,-141.3L-104.8,-126.7L-120.1,-111.4L-134.6,-95.6L-148.4,-79.2L-161.3,-62.3L-173.4,-44.9L-184.6,-27.0L-194.9,-8.8L-204.3,9.8L-212.9,28.8L-220.4,48.1L-227.0,67.7L-232.7,87.5L-237.4,107.6L-241.1,127.7L-243.8,148.1L-245.5,168.5L-246.2,188.9L-245.9,209.4L-244.6,229.8L-242.3,250.1L-239.0,270.4L-234.7,290.5L-229.4,310.4L-223.2,330.1L-216.0,349.5L-207.9,368.6L-198.8,387.4L-188.8,405.9L-178.0,423.9L-166.2,441.5L-153.6,458.6L-140.2,475.2L-126.0,491.2L-111.0,506.7L-95.3,521.6L-78.8,535.9L-61.7,549.5L-43.9,562.5L-25.5,574.7L-6.6,586.2L12.9,597.0L32.9,607.0L53.4,616.2L74.3,624.6L95.7,632.2L117.3,638.9L139.3,644.8L161.6,649.9L184.1,654.0L206.7,657.3L229.5,659.7L252.4,661.2L275.4,661.9L298.3,661.6L321.2,660.4L344.1,658.4L366.8,655.4L389.4,651.6L411.7,646.9L433.8,641.4L455.6,635.0L477.1,627.7L498.2,619.7L518.9,610.8L539.1,601.1L558.8,590.6L578.0,579.4L596.6,567.5L614.7,554.8L632.1,541.4L648.8,527.4L664.8,512.8L680.1,497.5L694.6,481.7L708.4,465.3L721.3,448.4L733.4,431.0L744.6,413.1L754.9,394.9L764.3,376.2L772.9,357.2L780.4,337.9L787.0,318.3L792.7,298.5L797.4,278.4L801.1,258.3L803.8,237.9L805.5,217.5L806.2,197.1L805.9,176.6L804.6,156.2L802.3,135.9L799.0,115.6L794.7,95.5L789.4,75.6L783.2,55.9L776.0,36.5L767.9,17.4L758.8,-1.3L748.8,-19.8L738.0,-37.8L726.2,-55.4L713.6,-72.5L700.2,-89.1L686.0,-105.1L671.0,-120.6L655.3,-135.5L648.1,-141.9M98.3,-247.7L78.8,-240.3L59.8,-232.1L41.1,-223.2L23.0,-213.5L5.3,-203.2L-11.8,-192.2L-28.4,-180.5L-44.5,-168.2L-59.9,-155.3L-74.6,-141.8L-88.7,-127.7L-102.1,-113.1L-114.8,-98.0L-126.7,-82.4L-137.8,-66.4L-148.2,-49.9L-157.7,-33.1L-166.4,-15.9L-174.2,1.5L-181.2,19.3L-187.3,37.4L-192.5,55.6L-196.8,74.1L-200.2,92.7L-202.7,111.4L-204.3,130.2L-204.9,149.1L-204.6,167.9L-203.4,186.7L-201.3,205.5L-198.3,224.2L-194.3,242.7L-189.5,261.0L-183.7,279.2L-177.1,297.1L-169.6,314.7L-161.3,332.0L-152.1,349.0L-142.1,365.6L-131.2,381.8L-119.6,397.6L-107.3,412.9L-94.2,427.7L-80.4,442.0L-65.9,455.7L-50.7,468.9L-34.9,481.4L-18.5,493.3L-1.6,504.6L15.8,515.2L33.8,525.2L52.3,534.4L71.2,542.9L90.5,550.6L110.1,557.6L130.1,563.8L150.3,569.2L170.9,573.9L191.6,577.7L212.5,580.7L233.5,583.0L254.6,584.4L275.7,584.9L296.9,584.7L318.0,583.6L339.1,581.7L360.0,579.0L380.8,575.5L401.4,571.2L421.7,566.1L441.8,560.2L461.6,553.5L481.1,546.0L500.1,537.9L518.8,528.9L536.9,519.3L554.6,509L571.8,497.9L588.4,486.3L604.5,474.0L619.9,461.0L634.6,447.5L648.7,433.5L662.1,418.9L674.8,403.8L686.7,388.2L697.8,372.1L708.2,355.7L717.7,338.9L726.4,321.7L734.2,304.2L741.2,286.4L747.3,268.3L752.5,250.0L756.8,231.6L760.2,213.0L762.7,194.2L764.3,175.4L764.9,156.6L764.6,137.8L763.4,118.9L761.3,100.2L758.3,81.5L754.3,63.0L749.5,44.6L743.7,26.5L737.1,8.6L729.6,-8.9L721.3,-26.3L712.1,-43.2L702.1,-59.9L691.2,-76.1L679.6,-91.8L667.3,-107.1L654.2,-121.9L640.4,-136.2L625.9,-149.9L610.7,-163.1L594.9,-175.7L578.5,-187.6L561.6,-198.9L544.1,-209.5L526.1,-219.4L507.6,-228.6L488.7,-237.1L469.4,-244.8L449.8,-251.8L429.8,-258.0L409.6,-263.5L389.0,-268.1L368.3,-271.9L347.4,-275.0L326.4,-277.2L305.3,-278.6L284.2,-279.2L263.0,-278.9L241.9,-277.9L220.8,-276.0L199.9,-273.3L179.1,-269.7L158.5,-265.4L138.2,-260.3L118.1,-254.4L98.3,-247.7M119.2,-237.8L102.1,-231.2L85.2,-223.9L68.7,-216.0L52.6,-207.5L37.0,-198.4L21.8,-188.6L7.1,-178.3L-7.0,-167.4L-20.6,-156.0L-33.7,-144.0L-46.2,-131.6L-58.0,-118.7L-69.2,-105.3L-79.7,-91.5L-89.6,-77.4L-98.7,-62.8L-107.1,-47.9L-114.8,-32.7L-121.8,-17.2L-127.9,-1.5L-133.3,14.4L-137.9,30.5L-141.8,46.9L-144.8,63.3L-147.0,79.9L-148.3,96.5L-148.9,113.2L-148.7,129.9L-147.6,146.5L-145.7,163.1L-143.1,179.6L-139.6,196.0L-135.3,212.2L-130.2,228.3L-124.3,244.1L-117.7,259.7L-110.3,275.0L-102.2,290.1L-93.3,304.7L-83.8,319.1L-73.5,333.0L-62.6,346.6L-51.0,359.7L-38.7,372.3L-25.9,384.4L-12.5,396.1L1.3,407.2L15.8,417.7L30.8,427.7L46.3,437.1L62.2,445.9L78.6,454.0L95.3,461.5L112.3,468.4L129.7,474.6L147.4,480.1L165.3,484.9L183.4,489.0L201.8,492.4L220.2,495.0L238.8,497.0L257.5,498.2L276.2,498.7L294.9,498.5L313.6,497.6L332.2,495.9L350.8,493.5L369.1,490.4L387.4,486.6L405.4,482.1L423.1,476.8L440.7,470.9L457.8,464.3L474.7,457.1L491.2,449.2L507.3,440.7L522.9,431.5L538.1,421.8L552.8,411.5L567.0,400.6L580.6,389.2L593.7,377.2L606.2,364.8L618.0,351.9L629.2,338.5L639.7,324.7L649.6,310.5L658.7,296.0L667.1,281.1L674.8,265.9L681.8,250.4L687.9,234.6L693.3,218.7L697.9,202.5L701.8,186.2L704.8,169.7L707.0,153.2L708.3,136.5L708.9,119.9L708.7,103.2L707.6,86.5L705.7,69.9L703.1,53.4L699.6,37.1L695.3,20.8L690.2,4.8L684.3,-11.0L677.7,-26.6L670.3,-41.9L662.2,-56.9L653.3,-71.6L643.8,-85.9L633.5,-99.9L622.6,-113.4L611.0,-126.5L598.7,-139.1L585.9,-151.3L572.5,-162.9L558.6,-174.0L544.1,-184.6L529.1,-194.5L513.6,-203.9L497.7,-212.7L481.3,-220.9L464.6,-228.4L447.6,-235.2L430.2,-241.4L412.5,-246.9L394.6,-251.7L376.5,-255.8L358.1,-259.2L339.7,-261.9L321.1,-263.8L302.4,-265.1L283.7,-265.6L265.0,-265.4L246.3,-264.4L227.7,-262.7L209.1,-260.4L190.8,-257.2L172.5,-253.4L154.5,-248.9L136.8,-243.7L119.2,-237.8M145.1,-212.1L130.7,-206.6L116.5,-200.5L102.7,-193.9L89.2,-186.7L76.1,-179.0L63.3,-170.9L51.0,-162.2L39.1,-153.1L27.7,-143.5L16.7,-133.4L6.2,-123.0L-3.6,-112.2L-13.0,-101.0L-21.8,-89.4L-30.1,-77.5L-37.8,-65.3L-44.8,-52.8L-51.3,-40.0L-57.1,-27.0L-62.3,-13.8L-66.8,-0.4L-70.7,13.0L-73.9,26.7L-76.4,40.6L-78.3,54.5L-79.4,68.4L-79.9,82.4L-79.7,96.4L-78.8,110.4L-77.2,124.3L-75.0,138.1L-72.0,151.9L-68.4,165.5L-64.2,179.0L-59.3,192.3L-53.7,205.3L-47.5,218.2L-40.7,230.8L-33.2,243.1L-25.2,255.2L-16.6,266.9L-7.4,278.2L2.2,289.2L12.4,299.8L23.2,310.0L34.5,319.8L46.2,329.1L58.3,337.9L70.9,346.3L83.9,354.2L97.3,361.5L111.0,368.4L125.0,374.7L139.3,380.4L153.9,385.6L168.7,390.2L183.8,394.3L199.0,397.7L214.4,400.6L229.9,402.8L245.4,404.4L261.1,405.5L276.8,405.9L292.5,405.7L308.2,404.9L323.8,403.5L339.4,401.5L354.8,398.9L370.1,395.7L385.2,391.9L400.1,387.5L414.8,382.6L429.2,377.0L443.4,371.0L457.2,364.3L470.7,357.2L483.8,349.5L496.6,341.3L508.9,332.7L520.8,323.5L532.3,314.0L543.2,303.9L553.7,293.5L563.6,282.7L573.0,271.4L581.8,259.9L590.1,248.0L597.8,235.8L604.8,223.3L611.3,210.5L617.1,197.5L622.3,184.3L626.8,170.9L630.7,157.3L633.9,143.6L636.4,129.8L638.3,115.9L639.4,102.0L639.9,88.0L639.7,74.0L638.8,60.0L637.2,46.1L635.0,32.3L632.0,18.5L628.4,4.9L624.2,-8.5L619.3,-21.8L613.7,-34.9L607.5,-47.7L600.7,-60.3L593.2,-72.6L585.2,-84.7L576.6,-96.4L567.4,-107.7L557.7,-118.7L547.5,-129.3L536.7,-139.5L525.4,-149.3L513.7,-158.6L501.6,-167.4L489.0,-175.8L476.0,-183.7L462.6,-191.1L448.9,-197.9L434.9,-204.2L420.6,-209.9L406.0,-215.1L391.2,-219.7L376.1,-223.8L360.9,-227.2L345.5,-230.1L330.0,-232.3L314.5,-234.0L298.8,-235.0L283.1,-235.4L267.4,-235.2L251.7,-234.4L236.1,-233.0L220.5,-231.0L205.1,-228.4L189.8,-225.2L174.7,-221.4L159.8,-217.0L145.1,-212.1M175.1,-171.4L163.8,-167.1L152.8,-162.4L142.1,-157.3L131.6,-151.7L121.4,-145.7L111.4,-139.4L101.8,-132.6L92.6,-125.5L83.7,-118.1L75.2,-110.3L67.0,-102.1L59.3,-93.7L52.0,-85.0L45.1,-76.0L38.7,-66.7L32.7,-57.2L27.2,-47.5L22.2,-37.6L17.7,-27.5L13.7,-17.2L10.1,-6.8L7.1,3.7L4.6,14.3L2.7,25.1L1.2,35.9L0.3,46.7L0.0,57.6L0.1,68.5L0.8,79.4L2.0,90.2L3.8,101.0L6.1,111.6L8.9,122.2L12.2,132.7L16.0,143.1L20.3,153.2L25.2,163.2L30.5,173.0L36.3,182.6L42.5,192.0L49.2,201.1L56.3,209.9L63.9,218.5L71.9,226.7L80.2,234.6L89.0,242.2L98.1,249.5L107.6,256.4L117.4,262.9L127.5,269.0L137.8,274.7L148.5,280.1L159.4,285.0L170.5,289.4L181.9,293.5L193.4,297.0L205.1,300.2L217.0,302.9L228.9,305.1L241.0,306.8L253.1,308.1L265.3,308.9L277.5,309.2L289.7,309.1L301.9,308.5L314.1,307.4L326.2,305.8L338.2,303.8L350.1,301.3L361.8,298.4L373.4,294.9L384.8,291.1L396.1,286.8L407.1,282.1L417.8,276.9L428.3,271.3L438.5,265.4L448.5,259.0L458.1,252.3L467.3,245.2L476.2,237.7L484.7,229.9L492.9,221.8L500.6,213.4L507.9,204.7L514.8,195.7L521.2,186.4L527.2,176.9L532.7,167.2L537.7,157.3L542.2,147.1L546.2,136.9L549.8,126.4L552.8,115.9L555.3,105.2L557.2,94.5L558.7,83.7L559.6,72.8L559.9,62.0L559.8,51.1L559.1,40.2L557.9,29.4L556.1,18.6L553.8,7.9L551.0,-2.6L547.7,-13.1L543.9,-23.4L539.6,-33.6L534.7,-43.6L529.4,-53.4L523.7,-63.0L517.4,-72.3L510.7,-81.4L503.6,-90.3L496.0,-98.8L488.0,-107.1L479.7,-115.0L470.9,-122.6L461.8,-129.8L452.3,-136.7L442.5,-143.2L432.4,-149.4L422.1,-155.1L411.4,-160.4L400.5,-165.3L389.4,-169.8L378.0,-173.8L366.5,-177.4L354.8,-180.5L342.9,-183.2L331.0,-185.4L318.9,-187.2L306.8,-188.5L294.6,-189.3L282.4,-189.6L270.2,-189.5L258.0,-188.8L245.8,-187.7L233.7,-186.2L221.7,-184.2L209.8,-181.7L198.1,-178.7L186.5,-175.3L175.1,-171.4M208.2,-117.1L200.5,-114.1L193.0,-110.9L185.6,-107.4L178.5,-103.6L171.5,-99.5L164.7,-95.1L158.1,-90.5L151.8,-85.7L145.7,-80.6L139.9,-75.2L134.3,-69.7L129.0,-63.9L124.0,-58.0L119.3,-51.8L114.9,-45.5L110.8,-39.0L107.1,-32.3L103.6,-25.5L100.5,-18.6L97.8,-11.6L95.4,-4.5L93.3,2.7L91.6,9.9L90.3,17.3L89.3,24.7L88.7,32.1L88.4,39.6L88.5,47.0L89.0,54.4L89.8,61.8L91.0,69.2L92.6,76.5L94.5,83.8L96.8,90.9L99.4,98.0L102.4,105.0L105.7,111.8L109.3,118.5L113.3,125.1L117.5,131.5L122.1,137.7L127.0,143.8L132.2,149.6L137.6,155.2L143.3,160.7L149.3,165.9L155.6,170.8L162.0,175.5L168.7,180.0L175.6,184.2L182.7,188.1L190.0,191.7L197.5,195.1L205.1,198.1L212.9,200.9L220.8,203.4L228.8,205.5L236.9,207.3L245.0,208.8L253.3,210.0L261.6,210.9L269.9,211.5L278.3,211.7L286.6,211.6L295.0,211.2L303.3,210.4L311.6,209.4L319.8,208.0L327.9,206.3L335.9,204.2L343.9,201.9L351.7,199.3L359.4,196.3L366.9,193.1L374.3,189.6L381.4,185.8L388.4,181.7L395.2,177.3L401.8,172.7L408.1,167.9L414.2,162.8L420.0,157.4L425.6,151.9L430.9,146.1L435.9,140.1L440.6,134.0L445.0,127.7L449.1,121.2L452.8,114.5L456.3,107.7L459.4,100.8L462.1,93.8L464.5,86.7L466.6,79.4L468.3,72.1L469.6,64.8L470.6,57.4L471.2,50.0L471.5,42.5L471.4,35.1L470.9,27.7L470.1,20.3L468.9,12.9L467.3,5.6L465.4,-1.6L463.1,-8.7L460.5,-15.8L457.5,-22.8L454.2,-29.6L450.6,-36.3L446.7,-42.9L442.4,-49.3L437.8,-55.5L432.9,-61.6L427.7,-67.4L422.3,-73.0L416.6,-78.5L410.6,-83.7L404.3,-88.6L397.9,-93.3L391.2,-97.8L384.3,-102.0L377.2,-105.9L369.9,-109.5L362.4,-112.9L354.8,-115.9L347.0,-118.7L339.1,-121.2L331.1,-123.3L323.0,-125.1L314.9,-126.7L306.6,-127.8L298.3,-128.7L290.0,-129.3L281.6,-129.5L273.3,-129.4L264.9,-129.0L256.6,-128.2L248.3,-127.2L240.1,-125.8L232.0,-124.1L224.0,-122.1L216.0,-119.7L208.2,-117.1M243.5,-50.7L239.6,-49.2L235.8,-47.5L232.1,-45.7L228.4,-43.8L224.9,-41.7L221.4,-39.5L218.1,-37.2L214.9,-34.7L211.8,-32.1L208.8,-29.4L206.0,-26.6L203.3,-23.7L200.8,-20.6L198.4,-17.5L196.2,-14.3L194.1,-11.0L192.2,-7.6L190.4,-4.2L188.9,-0.7L187.5,2.8L186.2,6.4L185.2,10.1L184.3,13.8L183.7,17.5L183.2,21.3L182.8,25.0L182.7,28.8L182.8,32.6L183.0,36.4L183.4,40.1L184.0,43.9L184.8,47.6L185.8,51.3L187.0,54.9L188.3,58.5L189.8,62.0L191.5,65.5L193.3,68.9L195.3,72.2L197.5,75.5L199.8,78.7L202.3,81.7L204.9,84.7L207.7,87.6L210.6,90.3L213.6,92.9L216.8,95.5L220.1,97.9L223.5,100.1L227.0,102.2L230.6,104.2L234.3,106.1L238.1,107.8L242.0,109.3L245.9,110.7L249.9,112.0L254.0,113.1L258.1,114.0L262.2,114.8L266.4,115.4L270.6,115.8L274.9,116.1L279.1,116.2L283.3,116.2L287.6,116.0L291.8,115.6L296.0,115.0L300.2,114.3L304.3,113.5L308.4,112.4L312.4,111.3L316.4,109.9L320.3,108.4L324.1,106.8L327.8,105.0L331.5,103.1L335.0,101.0L338.5,98.8L341.8,96.4L345.0,94.0L348.1,91.4L351.1,88.7L353.9,85.8L356.6,82.9L359.1,79.9L361.5,76.8L363.7,73.6L365.8,70.3L367.7,66.9L369.5,63.4L371.0,59.9L372.4,56.4L373.7,52.7L374.7,49.1L375.6,45.4L376.2,41.6L376.7,37.9L377.1,34.1L377.2,30.3L377.1,26.6L376.9,22.8L376.5,19.0L375.9,15.3L375.1,11.6L374.1,7.9L372.9,4.2L371.6,0.7L370.1,-2.8L368.4,-6.3L366.6,-9.7L364.6,-13.0L362.4,-16.2L360.1,-19.4L357.6,-22.5L355.0,-25.4L352.2,-28.3L349.3,-31.1L346.3,-33.7L343.1,-36.2L339.8,-38.6L336.4,-40.9L332.9,-43.0L329.3,-45.0L325.6,-46.8L321.8,-48.5L317.9,-50.1L314.0,-51.5L310.0,-52.7L305.9,-53.8L301.8,-54.7L297.7,-55.5L293.5,-56.1L289.3,-56.6L285.0,-56.8L280.8,-57.0L276.6,-56.9L272.3,-56.7L268.1,-56.3L263.9,-55.8L259.7,-55.1L255.6,-54.2L251.5,-53.2L247.5,-52.0L243.5,-50.7" fill="none" stroke="#fff" stroke-width="1"/>
+      <path d="M695.1,250.5L700.1,252.3L703.5,247.2L708.0,245.2L712.1,236.5L713.8,224.7L712.6,222.9L708.2,220.8L702.3,214.8L698.8,218.2L695.2,213.3L693.5,217.3L688.8,211.8L692.1,206.9L691.6,199.8L686.6,201.6L682.5,200.7L682.6,207.0L687.0,211.1L682.3,210.0L680.7,209.1L678.5,205.6L675.9,205.1L671.5,210.5L664.8,208.8L661.9,210.8L659.8,209.4L662.4,204.1L657.6,200.3L658.2,194.5L660.8,190.0L654.5,184.4L649.9,182.5L648.5,188.5L645.2,192.2L645.9,200.9L645.3,207.3L648.3,212.9L647.1,219.3L651.3,230.5L659.6,230.3L663.6,234.5L673.6,234.1L678.1,233.6L683.6,234.1L685.0,231.4L687.3,230.9L685.9,236.5L690.1,241.6L691.7,244.5L692.2,248.1ZM586.7,748.5L586.8,748.4L584.8,749.6L582.7,750.8L581.1,751.2L580.6,751.1L576.1,753.0L576.9,751.7L577.1,750.8L579.5,748.2L583.6,744.4L584.6,743.1L588.3,739.3L590.7,737.0L596.0,732.4L599.0,729.6L600.7,726.9L600.9,725.5L598.9,725.9L597.4,725.3L596.1,724.6L596.7,723.6L599.4,720.8L597.8,719.0L596.6,717.7L593.0,717.9L593.9,716.7L593.0,716.3L591.2,714.8L585.0,714.6L576.9,715.4L571.6,715.0L566.6,713.4L566.9,711.8L568.8,709.5L570.8,705.1L572.4,700.9L570.9,701.0L573.6,694.2L574.6,689.8L571.1,688.4L567.3,689.6L565.4,688.3L563.2,688.7L563.2,687.2L554.6,693.6L551.3,694.9L548.1,697.6L541.3,700.8L536.4,699.8L533.3,697.4L526.8,696.7L520.2,699.6L512.5,702.9L505.2,706.4L498.1,710.3L484.2,718.5L479.3,722.0L471.2,726.3L462.9,727.4L458.7,728.7L452.2,729.6L446.3,731.4L435.3,735.2L428.8,738.4L419.6,742.4L417.7,742.7L415.3,743.3L405.4,743.0L396.7,740.8L388.4,739.3L381.9,737.0L379.3,737.0L372.3,735.9L367.2,733.6L365.5,731.8L364.1,727.8L359.8,725.0L356.0,723.2L353.6,722.7L351.1,721.8L349.9,719.3L348.5,718.2L345.7,717.5L340.5,715.5L336.5,715.5L334.3,713.9L334.3,713.0L331.3,711.9L330.7,710.7L329.0,706.0L330.1,703.1L326.0,698.4L321.3,696.5L325.4,694.9L329.7,690.0L331.8,686.4L330.9,682.8L333.4,679.3L334.2,672.7L332.9,665.9L331.6,662.5L332.4,658.9L329.9,655.7L324.9,652.9L325.2,649.8L325.5,646.4L328.8,644.1L331.6,640.0L330.9,637.5L333.7,631.9L338.4,626.6L341.3,625.1L343.3,620.4L343.2,616.3L346.0,611.1L351.6,607.5L356.4,598.8L356.5,598.6L360.5,595.0L368.3,592.9L374.4,586.3L378.4,583.4L384.5,575.3L381.1,565.6L383.2,557.9L383.7,553.3L388.0,546.6L395.4,541.1L400.6,536.3L404.3,526.3L405.7,520.5L411.4,519.0L416.6,521.3L423.7,518.7L432.0,518.2L435.3,517.2L441.4,510.3L449.0,506.1L452.7,500.9L459.0,495.8L470.7,489.4L482.1,483.7L486.0,483.3L491.4,477.0L498.7,473.4L502.1,473.9L506.6,471.0L512.6,463.9L517.6,462.3L519.0,466.4L523.4,460.3L524.5,461.6L522.8,467.3L524.2,471.0L527.2,471.7L529.0,479.0L526.0,485.4L528.9,488.9L532.5,487.1L535.6,489.8L538.7,489.4L547.7,487.3L550.3,484.8L556.4,482.5L566.5,480.1L572.4,484.6L578.9,481.9L589.4,478.3L597.8,476.6L600.1,472.4L601.5,466.7L597.5,462.4L597.7,457.3L600.4,450.4L604.1,445.9L612.8,440.5L616.4,441.9L618.6,439.9L621.1,439.4L627.2,434.9L629.8,435.9L637.2,428.5L643.5,424.8L650.0,421.2L653.0,419.5L655.8,412.9L656.8,408.7L660.9,402.9L665.0,399.5L668.4,401.1L668.2,397.6L673.0,394.2L677.0,389.8L678.2,385.1L678.2,381.3L677.6,381.3L676.8,376.8L674.4,370.8L673.9,368.3L674.0,368.0L671.9,360.7L670.7,353.3L670.6,353.0L666.6,348.7L665.7,344.7L661.9,344.0L661.6,339.4L659.5,343.5L654.8,347.0L654.6,354.7L648.3,364.2L642.1,365.2L636.8,371.0L637.6,375.1L634.8,379.7L627.7,381.4L622.3,387.4L614.8,383.6L608.6,383.4L607.5,375.5L602.1,375.3L603.1,362.9L610.2,354.8L608.4,347.4L617.7,338.4L619.5,327.7L622.9,319.7L629.4,310.6L640.0,305.5L647.5,299.8L650.8,292.1L654.3,287.7L655.3,277.7L653.3,274.3L648.4,271.8L644.4,272.9L641.9,275.3L638.8,275.5L629.5,277.4L623.3,281.2L616.8,282.1L618.4,277.2L616.2,267.7L611.8,268.1L614.2,257.9L612.7,256.8L610.8,262.4L608.6,267.0L608.3,272.4L605.3,277.5L604.4,284.3L607.8,287.5L608.3,288.0L611.5,287.1L614.9,281.4L616.3,284.7L613.3,291.5L611.4,302.3L608.1,303.8L606.3,299.6L600.3,303.1L599.9,300.9L601.7,293.9L600.5,293.9L599.3,293.9L591.7,299.8L589.3,297.6L586.3,302.9L587.9,308.4L588.7,317.3L590.2,319.0L589.3,322.8L587.4,323.6L592.6,333.4L592.4,338.9L594.3,345.7L598.7,348.1L601.2,350.3L606.8,348.1L607.2,350.7L601.9,357.1L601.3,361.4L599.8,369.4L596.1,367.6L595.1,366.1L592.0,368.9L588.9,370.7L583.9,378.4L590.1,379.2L588.2,382.8L585.3,385.5L580.2,384.2L580.2,386.7L584.0,390.0L588.7,391.1L587.7,394.5L592.7,395.2L596.6,394.8L599.1,398.9L592.9,401.5L596.7,403.7L593.7,407.6L599.4,412.1L595.8,415.5L589.4,416.3L584.0,412.2L580.3,408.1L576.2,406.5L571.0,404.6L569.4,402.7L568.2,403.0L567.1,401.4L562.6,401.3L560.2,398.1L557.7,392.5L557.1,389.5L555.5,389.0L554.0,389.3L551.1,388.0L547.9,388.3L541.1,389.3L536.4,388.8L530.1,390.0L522.4,387.4L523.2,386.0L518.9,384.4L517.4,381.7L513.2,382.8L513.2,387.4L510.2,385.7L508.9,382.8L509.1,382.6L509.9,381.0L504.9,382.7L501.8,388.4L504.0,392.3L504.4,395.1L508.3,398.1L515.7,398.8L521.8,403.6L531.4,405.8L535.9,402.6L538.2,403.4L537.4,406.1L544.0,405.3L549.4,404.6L556.4,405.0L557.8,406.0L558.1,409.5L553.1,408.3L547.4,410.7L547.5,417.5L553.2,417.3L554.5,421.8L552.3,424.1L552.3,432.9L550.0,435.3L548.9,432.9L548.2,427.9L548.7,425.3L544.1,422.4L540.4,419.7L537.5,420.4L534.1,418.2L529.5,419.3L525.4,417.7L520.7,420.0L514.4,419.3L506.5,417.2L500.3,414.9L494.9,407.7L491.5,408.4L485.5,408.3L483.2,410.9L481.2,416.6L478.9,418.5L475.1,426.1L461.9,429.6L453.5,436.4L454.4,441.9L456.4,446.7L451.9,455.0L443.8,460.1L444.0,463.3L441.1,469.6L440.3,477.5L444.4,481.4L441.3,486.7L441.2,492.7L436.1,496.3L432.5,504.5L423.1,507.5L416.0,509.5L411.9,513.8L409.6,517.8L405.8,518.0L402.4,515.9L399.4,511.5L392.1,511.8L389.5,514.7L385.3,514.4L381.5,516.2L381.6,509.2L380.1,504.0L376.6,503.8L374.3,500.9L374.0,495.0L376.4,491.2L376.4,487.5L377.0,481.9L376.3,478.1L374.3,475.2L373.5,472.2L372.8,465.8L369.3,462.4L378.0,453.9L386.6,453.5L395.8,451.2L403.3,450.7L408.8,448.6L419.7,445.5L421.7,439.1L418.1,420.9L409.0,413.7L403.2,410.5L392.8,409.8L390.6,403.3L398.0,399.0L408.8,398.2L404.0,388.5L410.8,390.5L422.2,378.5L421.4,370.5L425.7,366.7L429.5,363.1L431.4,359.5L431.1,344.3L436.7,337.4L441.0,335.6L441.2,333.2L445.2,330.6L447.0,332.1L448.4,326.0L445.8,323.3L443.3,318.5L439.0,314.7L434.8,305.9L434.4,303.1L434.5,299.8L438.2,297.1L438.6,293.9L440.9,289.5L443.1,294.0L443.2,297.5L444.9,299.6L448.1,299.5L448.6,303.4L446.8,303.2L446.5,311.3L449.9,314.7L451.6,318.0L457.4,317.3L458.9,320.3L462.9,315.9L464.4,312.0L471.4,312.0L475.1,313.2L476.9,308.7L481.7,300.1L485.6,293.3L490.7,291.5L492.3,293.1L496.5,290.0L495.1,285.8L499.1,278.6L493.6,272.8L489.5,266.9L487.9,260.4L489.5,254.7L496.8,257.8L499.6,254.9L495.8,248.5L492.6,243.7L492.1,245.9L487.7,245.3L484.0,241.2L486.7,235.1L490.0,230.0L494.6,227.6L497.8,223.9L497.7,216.2L491.4,216.4L486.2,222.8L482.7,231.1L478.4,237.8L473.1,235.4L467.9,235.7L462.8,227.5L455.9,222.0L453.9,216.2L453.0,209.0L452.9,194.8L453.4,191.5L450.4,188.7L443.5,188.9L440.4,195.3L441.8,203.0L446.0,207.3L445.8,217.6L444.2,229.3L449.4,242.5L455.8,246.3L462.4,248.0L465.1,259.6L462.3,264.5L469.4,279.2L471.7,288.6L466.0,291.3L467.3,299.5L462.3,303.2L456.5,296.2L447.5,288.8L437.8,278.7L432.2,275.1L428.7,289.7L423.7,294.8L415.5,293.3L409.7,284.5L399.4,264.5L400.5,257.0L407.2,244.5L409.7,231.7L409.1,216.2L406.5,195.5L407.2,186.1L407.2,170.9L409.9,163.2L414.1,160.2L412.1,151.1L416.3,147.6L418.6,142.4L430.2,140.2L429.5,144.9L436.4,146.4L435.9,141.6L443.6,141.3L450.6,135.6L466.2,131.5L471.3,131.8L476.8,135.2L479.0,141.5L478.0,148.0L463.0,156.7L462.3,159.6L471.3,159.4L474.9,162.1L482.6,168.2L487.8,165.9L491.5,164.9L488.2,161.6L483.6,161.0L482.1,156.7L491.8,152.5L491.6,148.4L484.6,146.5L481.0,133.9L483.0,131.3L487.4,130.0L482.7,124.8L476.5,124.4L472.3,119.9L466.1,119.0L472.7,112.3L478.2,113.2L477.5,117.7L482.1,120.3L486.1,119.4L486.4,113.5L481.3,109.8L479.7,101.3L475.7,87.2L476.8,85.1L481.3,90.3L483.3,86.8L480.8,83.4L481.9,77.4L479.1,71.5L485.2,69.7L479.7,64.3L474.0,66.0L471.2,63.6L475.0,55.4L478.2,51.8L488.9,42.4L484.1,39.5L479.3,41.9L477.4,41.6L476.4,45.2L472.1,43.4L464.9,43.7L462.0,43.2L453.6,36.8L445.1,34.0L443.2,31.8L445.2,25.3L450.4,25.1L458.1,28.3L460.9,26.8L467.2,26.5L479.8,28.4L485.0,25.4L491.2,27.4L504.5,35.7L505.5,31.8L502.2,30.0L499.5,26.0L494.9,24.7L490.3,21.4L485.4,22.9L479.3,21.0L478.9,24.3L474.0,24.7L464.5,21.7L457.4,24.8L450.6,19.6L444.1,20.0L443.7,18.7L448.7,17.5L457.7,18.8L458.9,15.9L452.5,17.0L448.1,12.5L446.5,7.1L450.5,2.0L443.5,4.8L433.9,5.6L430.9,1.6L429.6,-4.0L426.6,-8.8L422.6,-6.2L415.8,-7.7L414.6,-10.1L408.5,-13.1L404.8,-18.0L402.1,-18.0L398.5,-22.6L399.5,-24.8L392.5,-27.2L390.4,-30.4L386.7,-29.4L382.1,-29.3L376.1,-31.4L376.3,-35.3L380.0,-34.2L378.1,-38.4L381.3,-40.9L378.3,-41.3L374.0,-45.7L373.7,-51.4L374.8,-54.4L378.7,-56.6L382.6,-56.3L391.1,-54.5L394.5,-54.5L393.2,-57.3L392.2,-61.1L389.2,-61.7L392.4,-65.6L389.9,-65.2L385.7,-67.1L380.0,-73.0L382.2,-75.9L373.5,-83.0L369.3,-78.8L365.4,-82.7L361.6,-84.8L360.2,-89.9L361.9,-94.3L365.4,-96.0L365.5,-102.3L362.8,-106.7L355.8,-101.6L353.1,-106.2L347.2,-106.4L342.7,-110.3L339.6,-109.2L335.3,-111.6L334.6,-105.0L329.7,-103.2L305.3,-112.9L303.5,-117.2L296.1,-123.2L283.1,-122.5L276.8,-123.7L274.0,-126.4L274.2,-131.3L269.9,-133.0L265.4,-131.4L259.4,-130.7L252.8,-131.3L246.6,-129.7L239.1,-134.4L235.5,-131.6L239.4,-128.0L238.8,-124.9L227.9,-124.4L221.3,-122.2L210.6,-122.3L204.6,-123.3L193.9,-124.7L181.2,-126.5L179.0,-129.9L175.6,-130.2L179.4,-126.7L169.7,-123.0L158.8,-124.2L160.2,-128.2L165.4,-131.8L161.3,-136.7L161.8,-138.4L165.5,-140.0L169.7,-139.6L175.8,-140.3L178.3,-138.3L182.7,-139.1L186.4,-141.4L189.7,-140.3L190.2,-138.0L193.8,-140.9L190.5,-142.9L191.2,-146.0L191.2,-146.0L194.8,-150.2L200.1,-151.4L195.0,-153.2L190.0,-156.8L187.3,-157.5L185.5,-159.5L185.7,-161.2L194.3,-162.7L204.4,-170.2L208.1,-171.8L213.5,-177.1L219.0,-181.8L219.9,-184.5L227.9,-182.1L239.3,-188.1L241.9,-186.4L246.2,-189.2L252.8,-189.1L253.9,-192.7L259.3,-198.1L258.9,-200.1L252.8,-200.8L252.5,-207.9L257.5,-208.4L259.4,-212.5L256.8,-214.3L266.5,-217.1L268.1,-222.2L276.8,-223.4L278.6,-227.7L287.4,-231.4L289.5,-228.6L291.7,-222.4L294.2,-212.4L291.1,-205.9L286.5,-203.1L286.1,-200.8L278.1,-199.7L269.2,-193.0L261.2,-187.2L253.2,-182.3L250.8,-174.1L256.2,-175.1L258.3,-179.9L269.8,-186.5L273.9,-179.9L285.9,-181.8L298.6,-190.3L294.8,-193.8L306.1,-194.4L314.0,-194.2L312.9,-190.5L320.4,-188.8L327.1,-190.5L341.8,-187.1L358.4,-184.9L379.2,-189.7L405.6,-193.0L397.8,-196.5L396.9,-199.9L392.3,-202.5L387.5,-201.6L381.7,-203.6L376.3,-210.3L378.0,-213.7L384.8,-216.3L388.0,-220.5L394.4,-225.1L407.1,-226.8L410.9,-228.1L422.4,-228.4L434.0,-228.2L439.8,-228.0L450.1,-225.9L454.2,-224.2L456.9,-221.5L467.6,-219.2L469.6,-219.4L471.9,-218.1L475.7,-217.5L478.7,-217.2L480.6,-218.5L484.7,-217.3L486.4,-217.0L489.7,-216.2L494.6,-214.2L498.2,-213.2L499.8,-213.6L500.9,-213.4L498.8,-215.0L496.4,-217.4L494.1,-221.7L494.2,-223.2L497.3,-224.4L501.5,-223.5L508.3,-220.5L515.0,-217.9L521.5,-214.6L520.7,-213.8L517.2,-214.0L517.0,-211.6L511.6,-214.1L513.4,-210.8L516.0,-208.8L517.4,-208.6L519.6,-207.6L519.2,-207.3L520.6,-206.2L521.8,-205.0L518.6,-205.6L516.7,-206.3L516.6,-205.8L513.2,-206.1L513.1,-205.7L516.4,-203.4L518.4,-201.3L528.1,-196.4L534.3,-194.0L541.9,-189.9L537.0,-191.6L536.8,-190.4L529.5,-192.8L530.7,-190.1L537.2,-187.0L546.6,-183.2L552.7,-181.2L558.6,-177.0L563.4,-175.1L563.0,-177.9L558.8,-181.6L560.3,-182.0L556.6,-185.6L547.1,-189.9L543.0,-193.8L539.0,-196.4L539.8,-197.5L549.7,-191.9L554.5,-190.2L562.4,-186.2L568.0,-184.1L563.1,-189.0L563.8,-190.9L562.8,-193.6L560.6,-196.6L563.0,-196.4L568.0,-193.6L568.0,-194.5L564.9,-197.0L568.2,-196.0L572.2,-194.4L576.3,-191.8L584.3,-187.6L593.4,-182.5L602.9,-176.6L614.7,-168.3L626.2,-159.7L633.9,-153.4L639.1,-149.2L640.5,-147.8L645.4,-143.8L655.6,-134.8L662.6,-128.3L667.4,-124.1L671.0,-120.6L670.7,-120.5L668.3,-122.7L675.4,-115.2L678.7,-112.0L688.7,-101.7L695.9,-94.2L699.0,-91.1L697.2,-93.5L696.5,-94.2L696.5,-94.2L709.4,-79.4L721.6,-64.2L733.4,-48.6L744.6,-32.6L750.3,-23.9L749.8,-24.6L747.8,-27.2L747.8,-26.6L752.0,-20.2L758.7,-9.6L760.9,-5.7L762.9,-1.8L758.4,-8.3L756.7,-9.6L756.6,-7.2L755.1,-9.2L757.0,-5.2L757.2,-2.3L756.6,-1.7L755.2,-2.7L754.3,-2.7L753.8,-1.2L756.9,5.4L758.0,5.9L761.0,9.8L761.7,12.4L762.9,14.1L763.4,15.9L764.4,18.5L766.1,20.7L768.2,25.8L772.7,35.8L775.0,37.7L778.5,43.7L784.7,57.2L791.2,70.0L794.9,78.2L799.1,88.6L800.4,90.3L802.1,95.2L805.0,103.9L806.1,107.9L808.7,113.2L811.4,116.5L813.1,119.3L815.9,126.5L819.1,133.4L820.2,137.9L822.3,144.9L822.2,143.7L824.3,152.5L825.8,158.2L826.9,162.8L827.0,167.0L825.4,165.1L824.1,164.1L823.6,165.2L822.2,165.7L819.7,162.7L818.4,161.6L815.8,163.7L810.6,159.3L806.9,156.7L802.9,151.9L799.8,149.9L802.8,164.0L802.7,169.3L798.7,174.9L797.3,169.6L795.9,170.4L792.8,176.4L791.7,181.2L788.8,180.6L785.5,183.6L785.6,198.9L784.6,211.7L783.9,223.4L780.5,236.7L778.0,244.1L775.8,252.2L769.8,249.7L768.3,252.5L767.7,259.2L767.8,269.2L763.8,276.8L758.2,280.6L754.7,286.2L748.8,286.3L740.8,284.8L740.1,289.5L736.9,292.3L737.6,297.0L735.7,300.9L738.3,301.8L739.1,303.7L743.4,305.3L748.3,307.1L750.6,304.7L752.6,305.2L756.2,302.4L758.1,304.1L759.2,306.5L760.9,307.3L762.8,306.6L764.4,307.3L765.8,307.4L762.7,304.2L761.3,299.5L761.5,296.9L763.6,296.2L766.0,299.0L767.8,303.7L769.7,304.2L770.0,302.6L771.1,303.7L772.4,296.9L774.4,290.7L775.9,286.1L774.7,277.6L773.5,268.7L772.2,260.9L771.3,257.1L771.8,256.5L773.4,259.2L773.9,261.1L777.4,263.8L780.9,263.6L783.3,260.9L785.0,255.8L786.5,252.0L789.4,251.1L791.0,250.5L791.9,248.2L792.7,249.2L794.4,254.9L795.2,257.4L795.7,262.3L797.5,268.5L796.6,271.9L797.1,274.7L798.5,278.3L800.8,280.5L801.1,281.8L800.3,285.5L800.3,292.4L801.6,295.5L801.8,298.3L800.6,303.3L800.5,307.7L801.7,309.6L801.5,314.9L800.0,318.9L799.4,325.9L798.5,329.9L797.4,337.1L798.1,340.8L798.9,342.7L797.3,352.8L793.8,367.9L792.7,378.6L791.4,382.4L790.3,384.5L789.3,391.2L787.6,397.2L784.7,404.1L783.9,406.4L783.7,409.4L782.8,411.8L782.8,414.3L780.9,418.1L779.9,421.3L777.1,426.4L774.9,425.4L773.9,422.3L772.6,422.1L770.2,419.7L768.1,419.7L768.8,417.9L767.3,416.3L767.3,414.4L766.1,412.4L764.5,411.1L762.5,411.8L761.1,410.2L758.1,412.1L753.6,411.5L750.1,409.1L745.1,410.4L742.7,412.7L736.9,412.0L734.2,408.9L732.5,405.2L726.3,402.9L722.8,403.8L719.7,406.3L716.2,405.2L715.6,403.5L712.5,402.3L710.4,402.9L705.9,401.1L700.0,400.2L695.0,399.3L692.7,402.6L691.3,398.1L690.1,395.7L689.1,392.5L688.3,391.8L688.7,396.0L690.6,402.1L691.3,407.1L690.8,409.6L688.0,409.8L684.1,409.8L675.0,405.2L674.8,406.4L681.0,410.5L687.8,413.0L697.2,417.7L701.0,418.7L704.5,419.9L712.6,420.6L712.2,423.0L714.5,426.6L722.9,423.9L724.4,423.9L728.9,427.3L728.4,429.9L732.1,434.8L737.1,438.9L739.6,437.6L743.1,435.7L748.7,437.9L752.2,440.9L755.7,439.5L763.8,434.3L767.4,433.1L770.8,432.0L772.8,431.4L775.4,429.2L776.9,428.9L777.6,431.3L775.7,436.9L777.9,435.0L779.6,433.4L781.1,433.9L783.5,432.5L785.4,428.6L788.5,419.9L792.2,410.7L794.7,402.1L796.2,397.8L797.1,394.1L798.8,389.3L799.8,386.6L800.9,382.2L802.3,377.4L803.0,371.9L804.0,368.8L804.6,369.9L805.5,373.5L806.4,376.0L806.4,379.5L807.3,387.0L807.5,396.3L807.1,407.4L805.8,421.4L803.9,433.5L800.6,449.4L797.2,461.2L791.7,477.6L788.0,488.4L783.4,502.4L782.3,506.5L781.3,509.3L778.1,516.5L776.8,520.1L775.1,523.3L774.1,527.4L772.5,531.6L771.2,535.8L769.1,540.2L769.1,540.2L765.9,548.7L765.7,550.5L768.3,547.1L768.2,547.9L766.2,552.3L766.1,553.0L765.3,555.3L766.0,555.0L766.5,555.5L767.8,553.6L767.8,554.0L766.0,557.8L764.9,559.9L763.9,561.8L763.9,561.8L753.7,578.5L743.0,594.9L731.8,610.8L719.9,626.4L707.6,641.5L694.7,656.2L681.3,670.5L667.4,684.2L653.1,697.5L638.3,710.3L623.0,722.5L607.4,734.2L591.3,745.4ZM-116.1,675.8L-117.3,674.6L-124.7,666.9L-126.1,665.3L-140.2,649.9L-152.8,635.0L-158.3,627.9L-162.2,622.6L-161.9,622.8L-168.9,612.7L-177.1,599.5L-184.8,585.6L-187.5,580.9L-189.9,575.9L-194.5,567.6L-198.5,560.8L-197.2,561.4L-200.4,554.0L-199.3,553.4L-195.6,556.7L-193.2,557.5L-194.4,554.1L-196.2,553.3L-199.4,547.0L-198.5,547.3L-199.6,542.1L-197.8,544.0L-196.9,542.7L-195,542.6L-195.3,540.2L-192.4,543.3L-188.7,546.5L-189.3,544.2L-187.3,546.5L-187.4,543.9L-186.0,543.9L-183.3,547.2L-180.7,547.3L-178.4,547.5L-180.3,543.8L-178.9,542.3L-179.4,536.3L-178.1,536.5L-178.2,531.2L-179.9,525.6L-181.4,521.8L-181.9,517.5L-180.3,517.9L-181.6,515.8L-182.2,512.7L-184.5,507.7L-186.8,504.9L-188.3,505.2L-190.7,503.5L-191.8,502.1L-192.6,502.4L-190.8,508.6L-192.3,507.3L-193.2,507.0L-195.6,503.8L-195.8,499.5L-196.6,499.4L-198.2,496.7L-198.7,493.1L-200.6,489.7L-201.7,487.2L-203.8,484.0L-204.2,484.9L-204.5,483.3L-206.8,478.0L-207.4,475.5L-206.7,475.5L-206.6,474.1L-207.5,470.8L-209.0,466.8L-210.3,463.5L-210.2,461.5L-211.1,458.6L-211.3,460.6L-212.5,460.3L-213.1,457.1L-214.3,454.2L-214.6,452.1L-214.1,450.6L-213.0,450.0L-214.0,447.1L-212.7,447.9L-213.6,443.7L-214.8,438.0L-215.1,434.6L-216.2,429.7L-217.3,423.5L-216.6,423.6L-216.2,425.6L-215.8,425.9L-215.8,422.9L-216.8,420.1L-217.8,420.5L-219.9,415.9L-221.1,412.6L-222.2,408.4L-224.1,403.7L-224.7,400.4L-226.1,395.5L-228.2,390.5L-229.3,385.8L-230.1,379.5L-231.0,365.1L-231.7,359.4L-233.4,351.6L-235.1,347.5L-238.2,342.9L-239.7,339.3L-240.8,332.3L-242.0,325.3L-242.8,315.5L-244.0,308.7L-244.8,297.3L-244.9,288.2L-244.6,284.8L-245.3,280.0L-245.8,270.2L-245.0,264.7L-244.5,253.3L-243.0,246.4L-241.6,242.2L-240.9,244.5L-240.0,242.4L-238.9,243.1L-237.7,241.6L-236.4,236.8L-235.0,234.3L-233.5,229.4L-230.4,218.0L-228.0,206.6L-225.8,200.1L-224.5,191.7L-223.5,189.2L-220.8,187.8L-220.0,182.9L-218.0,176.3L-214.9,171.6L-214.6,167.1L-212.2,160.6L-209.9,155.1L-208.5,153.6L-204.8,146.7L-200.9,141.1L-199.0,139.8L-196.8,133.0L-197,130.7L-195.3,125.4L-197.3,125.7L-199.8,128.6L-203.6,132.1L-205.7,136.2L-209.3,144.4L-210.4,146.5L-210.8,147.9L-212.4,150.3L-212.4,151.6L-215.4,155.6L-216.5,158.9L-218.1,162.0L-220.4,168.8L-224.4,175.2L-226.2,179.3L-228.1,183.4L-230.2,186.0L-230.2,190.0L-231.9,195.1L-233.5,199.8L-234.2,200.4L-235.8,198.6L-235.8,197.1L-233.5,192.5L-231.4,184.9L-229.6,177.2L-228.6,172.1L-225.5,169.4L-223.2,166.1L-221.8,161.2L-219.8,154.1L-220.3,153.5L-219.1,150.6L-217.8,144.9L-215.0,138.1L-214.7,138.4L-215.1,141.8L-213.5,143.3L-211.4,141.8L-207.8,133.3L-206.2,127.9L-202.9,122.9L-199.5,117.8L-195.1,111.6L-190.2,105.6L-187.4,102.7L-183.8,96.2L-182.7,92.4L-181.1,90.7L-180.2,86.6L-178.4,83.2L-176.8,76.3L-175.6,74.0L-172.5,71.5L-165.6,62.0L-156.4,52.6L-155.1,52.2L-152.5,48.4L-146.4,41.3L-141.2,38.5L-137.0,33.8L-132.2,33.4L-126.7,31.4L-121.3,27.8L-115.7,28.4L-109.8,27.4L-103.9,26.5L-94.4,23.0L-87.9,19.8L-84.2,17.4L-83.0,17.8L-87.3,26.6L-94.7,31.3L-93.1,32.3L-87.1,29.9L-80.8,26.5L-80.6,25.8L-70.9,13.6L-66.7,9.1L-60.9,-0.9L-53.5,-4.7L-49.2,-4.5L-43.8,-11.3L-37.5,-12.6L-29.9,-18.9L-26.0,-19.1L-22.1,-21.8L-18.1,-26.0L-10.9,-27.3L-2.3,-32.9L5.9,-34.9L8.3,-38.9L11.8,-45.6L16.5,-50.2L29.0,-57.3L32.6,-60.8L39.5,-66.9L42.4,-72.2L50.8,-78.4L57.1,-81.7L58.7,-86.0L53.3,-86.9L54.5,-89.0L56.5,-93.5L57.0,-97.3L59.1,-101.7L63.4,-100.7L68.4,-96.6L67.3,-92.3L69.7,-92.5L69.9,-98.2L67.7,-102.2L67.9,-108.9L62.4,-107.8L61.1,-112.9L62.4,-117.7L64.2,-121.9L62.5,-123.9L65.5,-130.6L64.1,-132.9L66.4,-138.0L69.7,-140.0L72.1,-143.9L74.6,-148.1L76.6,-151.8L82.8,-158.0L84.3,-157.9L81.7,-153.1L79.0,-149.2L77.3,-144.2L72.8,-139.9L73.0,-137.1L70.8,-130.8L71.1,-129.5L70.3,-126.1L74.0,-123.3L75.7,-120.0L78.1,-124.5L80.3,-125.0L80.2,-127.8L85.5,-128.2L84.5,-130.2L88.7,-129.7L90.3,-134.0L92.7,-135.8L96.2,-134.0L97.5,-132.2L101.9,-132.7L105.8,-137.0L111.5,-137.5L115.4,-138.3L118.3,-136.1L123.3,-136.3L124.8,-133.0L124.7,-128.7L126.2,-125.7L123.7,-123.5L120.5,-122.4L120.4,-118.5L117.5,-117.0L116.8,-113.9L120.1,-112.5L122.9,-113.2L122.8,-109.8L124.6,-111.4L126.8,-114.8L126.5,-116.5L130.4,-117.4L134.4,-121.1L140.7,-123.3L144.1,-122.4L151.3,-122.2L148.8,-117.4L144.4,-110.5L141.8,-108.8L139.5,-111.3L133.2,-106.4L139.2,-105.6L145.0,-106.5L149.9,-105.6L155.1,-105.5L160.8,-106.6L161.9,-102.9L157.1,-99.4L156.2,-94.8L158.4,-92.0L158.6,-87.8L156.8,-85.4L155.0,-79.7L152.4,-78.2L152.4,-72.8L147.7,-70.6L143.1,-71.0L143.5,-69.3L139.5,-65.9L138.0,-66.9L133.6,-64.1L132.3,-61.4L125.8,-57.5L121.5,-53.2L119.1,-51.6L118.0,-47.8L113.0,-44.8L110.1,-42.3L110.1,-42.3L105.2,-37.8L98.8,-34.4L96.5,-31.6L98.7,-28.4L99.7,-24.5L96.8,-20.5L98.8,-15.7L99.3,-10.8L95.0,-9.2L96.3,-6.9L100.2,-5.9L98.7,-4.0L89.3,0.3L94.3,4.4L87.4,4.6L88.0,8.3L90.4,9.4L89.2,13.0L84.6,17.7L80.3,25.1L78.4,29.6L78.7,32.6L73.9,37.5L69.6,33.6L67.4,39.8L68.5,48.5L70.1,51.0L64.9,55.7L69.7,58.2L73.3,54.0L76.6,55.3L77.3,59.0L78.5,61.3L76.6,64.5L72.2,69.1L73.5,72.5L70.6,79.5L73.1,84.1L74.1,88.8L79.5,86.2L81.8,88.4L80.3,94.4L72.0,98.1L79.6,97.0L80.2,99.6L89.4,96.9L93.7,91.3L96.2,86.4L106.1,82.6L113.6,83.0L113.4,87.0L110.5,91.5L102.2,99.9L96.9,99.6L97.4,105.7L88.7,110.4L97.1,110.6L93.4,117.2L86.8,119.9L82.7,126.2L90.3,125.7L98.5,123.3L107.5,117.7L109.1,121.9L110.3,126.7L108.7,133.0L104.9,136.0L99.4,137.0L96.5,142.1L92.5,144.6L83.3,142.7L79.5,139.3L80.1,134.4L75.6,136.1L67.1,137.4L63.1,138.7L55.7,138.2L52.8,133.5L48.0,132.8L42.6,135.6L39.8,131.9L31.3,131.0L20.6,131.8L13.6,133.8L4.2,138.7L5.2,145.8L-1.3,152.2L-6.4,157.9L-2.3,163.1L-1.9,173.5L-2.6,179.9L-4.5,185.7L-3.6,192.7L-4.0,199.8L-0.1,207.4L2.0,212.7L-4.3,217.3L-10.3,224.8L-15.7,235.0L-17.2,247.8L-12.6,249.3L-4.2,245.1L4.5,232.6L5.8,226.2L13.9,229.9L22.1,229.9L28.4,227.5L32.6,222.7L36.3,214.5L38.0,205.0L48.6,202.6L53.8,195.2L64.0,184.1L67.4,184.9L70.0,192.3L72.2,196.3L76.3,197.2L76.6,202.4L76.4,210.4L74.8,214.1L79.9,220.3L74.5,226.3L67.8,236.7L70.0,240.8L69.0,247.6L77.5,248.0L87.4,242.5L92.4,240.9L90.2,250.1L88.1,264.1L86.2,277.0L81.3,280.8L84.0,289.5L85.1,296.9L91.0,303.7L92.5,308.3L90.5,316.5L93.6,319.9L93.9,324.3L89.4,334.0L84.1,335.0L79.0,335.7L69.3,333.4L59.3,335.9L50.3,331.2L41.2,321.8L34.3,316.1L29.3,312.6L21.8,314.7L13.8,312.9L0.3,316.5L-9.6,318.1L-5.0,320.7L9.1,318.0L22.9,320.3L30.3,325.5L32.0,332.7L24.2,334.2L20.4,343.8L18.4,350.9L22.7,360.0L31.9,365.4L42.1,360.2L39.3,366.3L41.2,371.6L31.7,372.1L17.3,368.0L10.3,367.0L1.2,367.7L-2.2,363.9L1.5,357.3L14.2,358.4L6.0,351.9L-0.0,348.0L-0.7,351.2L-8.3,350.1L-15.0,348.0L-21.5,345.3L-26.9,347.0L-28.9,347.8L-31.5,351.6L-32.6,357.0L-30.7,359.1L-29.4,356.0L-29.0,359.0L-30.8,360.7L-34.9,358.6L-37.1,356.1L-41.5,353.7L-43.8,351.8L-46.7,349.2L-52.0,347.0L-44.3,353.2L-43.8,356.0L-51.8,350.9L-54.8,347.6L-54.0,347L-56.8,347.3L-55.7,349.1L-60.2,352.9L-67.4,354.2L-66.5,352.1L-67.2,350.6L-67.4,347.1L-69.2,351.8L-68.9,354.4L-70.7,357.0L-74.0,357.9L-80.5,360.1L-80.7,359.3L-76.0,356.5L-76.4,351.1L-72.8,345.0L-75.9,346.8L-78.0,352.2L-80.2,347.4L-78.7,353.4L-83.1,359.9L-82.1,362.0L-83.3,364.9L-87.3,372.3L-93.6,373.5L-99.8,369.4L-105.4,369.2L-108.0,366.6L-111.9,365.9L-114.0,367.2L-121.7,364.4L-126.3,363.8L-130.9,364.4L-134.7,367.8L-136.9,373.2L-139.0,380.5L-139.8,387.7L-141.5,390.3L-143.8,400.5L-146.5,404.3L-148.1,406.4L-151.4,408.4L-153.2,407.1L-155.1,403.1L-154.2,399.4L-155.0,395.5L-154.1,386.8L-153.2,379.1L-152.3,375.8L-148.7,373.3L-147.6,368.1L-147.3,358.0L-148.2,354.5L-154.1,350.4L-154.5,348.9L-154.3,342.9L-155.5,337.3L-160.1,330.3L-162.7,323.5L-165.5,318.7L-167.6,316.7L-168.2,319.4L-170.1,321.5L-170.3,324.1L-171.5,323.5L-172.0,320.0L-174.0,318.4L-176.2,313.1L-176.1,305.0L-179.1,299.5L-180.1,293.0L-182.1,288.9L-185.4,284.1L-191.0,281.2L-195.3,276.1L-198.6,274.4L-201.1,275.0L-204.1,278.3L-206.0,281.0L-207.0,284.1L-211.4,285.6L-214.6,287.8L-219.9,293.8L-221.9,295.5L-223.4,299.5L-224.4,304.3L-226.6,309.7L-227.5,318.6L-228.7,323.3L-229.2,328.9L-227.2,338.6L-227.3,343.9L-223.9,349.4L-221.4,354.9L-218.5,359.8L-216.0,363.8L-212.7,366.5L-210.1,365.3L-207.2,361.5L-205.6,361.2L-202.5,364.9L-198,371.6L-194.8,378.3L-192.2,382.4L-192.0,385.3L-193.7,387.7L-197.6,386.9L-200.3,388.5L-200.1,390.8L-202.0,392.0L-205.2,394.3L-205.4,391.0L-206.2,389.5L-206.6,390.3L-205.9,391.8L-206.7,393.1L-208.5,394.1L-208.6,395.6L-210.0,396.7L-210.0,397.7L-211.7,399.5L-213.1,399.3L-213.9,398.1L-215.5,398.4L-214.7,401.8L-214.0,401.7L-213.2,404.7L-212.9,405.7L-211.7,406.4L-210.5,408.5L-210.4,409.7L-209.6,410.6L-208.0,414.6L-206.1,418.0L-204.5,419.8L-203.8,420.1L-202.6,422.8L-201.7,424.9L-200.6,426.7L-199.5,427.8L-197.9,431.9L-197.3,433.2L-196.4,436.5L-195.6,439.8L-194.3,443.3L-193.7,446.7L-194.3,446.6L-195.1,447.4L-195.4,450.2L-197.1,450.3L-198.4,451.6L-199.5,453.7L-199.7,455.4L-200.4,458.0L-201.3,457.4L-202.5,458.9L-202.7,460.8L-204.0,460.6L-204.3,462.3L-203.9,464.3L-203.6,469.0L-202.4,474.0L-200.8,479.6L-199.6,484.1L-200.0,485.1L-198.1,488.3L-197.5,488.5L-196.5,491.8L-194.0,495.1L-191.5,497.0L-188.2,500.3L-186.0,501.3L-183.2,505.6L-183.5,505.8L-180.6,510.0L-178.5,514.1L-177.1,518.0L-175.4,522.1L-172.6,525.9L-167.5,527.5L-165.0,529.8L-164.5,528.2L-162.3,524.9L-158.3,526.4L-154.6,530.6L-153.8,530.0L-149.3,535.7L-143.8,538.2L-141.1,539.5L-137.4,540.0L-135.3,542.6L-134.0,545.8L-135.8,546.4L-136.3,547.5L-140.1,544.3L-138.7,548.9L-139.5,551.7L-143.1,551.9L-141.7,558.6L-138.9,561.1L-136.6,558.7L-138.1,554.8L-137.4,550.4L-128.9,556.1L-129.1,552.7L-126.4,553.1L-125.1,559.3L-120.6,563.8L-117.1,570.9L-117.3,572.9L-111.3,578.5L-103.8,584.4L-100.4,590.2L-95.2,595.4L-90.9,596.9L-90.5,595.6L-81.5,602.3L-72.7,608.9L-79.3,605.9L-77.3,610.4L-71.5,615.2L-66.4,622.0L-65.9,627.2L-62.0,629.9L-59.2,633.2L-54.5,638.7L-50.2,645.3L-50.3,648.2L-47.4,650.2L-43.5,655.5L-40.6,659.3L-31.1,666.2L-30.1,665.8L-23.5,669.3L-14.9,675.6L-12.1,677.8L-6.1,682.3L2.3,691.2L3.6,694.0L6.5,695.2L8.4,699.0L12.8,709.7L17.4,712.7L17.5,716.0L11.0,716.6L13.7,719.3L29.0,727.1L29.4,731.6L36.0,731.6L47.1,737.9L62.1,746.3L66.5,750.4L65.2,752.1L75.6,754.6L93.5,762.7L107.3,766.7L121.2,773.8L133.4,781.1L140.7,783.8L148.8,785.8L152.3,787.7L155.8,792.8L157.6,795.2L154.3,799.7L149.8,800.6L137.3,801.6L132.0,803.1L125.7,803.6L123.4,803.0L121.4,804.1L123.4,808.3L122.1,810.6L121.7,811.4L119.3,811.3L119.0,812.9L111.6,812.0L111.3,812.7L104.9,811.0L103.7,810.9L94.5,807.8L82.0,803.5L76.9,801.7L68.2,798.3L61.8,795.7L61.8,795.7L43.9,787.8L26.3,779.2L9.1,770.1L-7.8,760.3L-24.4,750.0L-40.6,739.1L-56.4,727.6L-71.8,715.6L-86.8,703.0L-101.4,690.0L-115.4,676.4ZM51.3,162.9L56.4,162.9L59.3,167.7L57.8,168.7L51.1,167.9L49.7,165.2ZM139.9,115.7L142.5,110.4L145.4,108.5L146.6,109.1L149.2,114.4L147.7,121.2L145.8,123.1L144.2,120.7L142.6,118.3L139.8,116.7ZM56.9,178.0L60.0,177.5L60.8,179.0L59.9,181.2L55.2,183.1L54.7,181.0L56.2,178.3ZM142.2,75.2L138.3,75.5L137.9,72.0L139.4,68.4L143.9,68.1L147.3,70.1L144.8,73.2ZM165.0,65.3L164.4,64.6L163.8,61.0L166.3,59.6L167.3,63.2L166.1,65.1ZM174.7,56.2L172.1,59.2L168.6,60.0L165.9,58.0L167.7,55.9L171.0,54.1L174.8,52.8L175.0,55.0ZM142.1,89.4L141.6,85.4L141.9,78.3L146.6,75.4L150.9,73.2L154.1,69.6L153.8,65.1L155.9,61.8L159.9,61.2L160.6,65.3L158.4,68.5L159.9,72.2L157.7,75.2L154.2,76.3L153.2,79.5L151.7,81.8L152.6,84.6L153.4,87.9L156.9,90.0L160.0,93.4L161.3,96.8L159.7,100.8L156.6,103.6L153.7,103.8L149.9,102.0L149.3,98.8L144.6,93.6ZM165.0,32.4L163.6,35.2L160.7,34.9L157.9,31.7L161.0,28.7L164.0,29.9ZM171.2,32.3L169.4,34.8L167.4,32.9L167.4,30.0L168.8,29.9L171.7,31.4ZM86.3,341.2L80.9,344.9L73.7,350.1L78.5,349.4L81.2,353.3L77.9,355.1L81.5,360.2L84.9,359.5L89.1,365.1L84.6,370.4L89.1,371.1L87.8,376.0L87.2,382.2L81.6,388.4L78.9,387.3L75.8,383.7L80.2,377.4L79.1,375.5L69.3,379.1L66.1,376.8L71.8,375.2L67.5,370.0L61.5,366.9L51.3,359.9L51.8,357.0L56.6,356.3L55.5,352.6L62.5,350.6L74.8,340.8L80.4,338.0L86.2,337.8L88.4,339.5ZM72.1,148.3L71.6,153.8L71.6,159.3L68.2,162.4L70.4,164.3L69.5,168.7L65.1,167.7L63.5,161.0L65.8,156.5L59.7,156.2L52.8,154.1L56.7,149.7L53.4,145.5L58.9,145.9L65.4,142.2L73.3,138.4L74.0,141.2L70.8,144.2L73.0,145.0ZM137.9,120.6L142.6,120.3L142.5,128.1L141.5,134.1L138.5,137.2L143.8,139.7L141.4,146.3L143.9,154.2L143.2,158.9L139.3,167.7L131.8,167.0L133.5,177.2L136.3,182.4L134.8,192.7L138.9,196.7L134.0,201.5L121.8,206.5L120.7,200.1L122.1,189.0L117.8,186.7L113.7,190.6L113.0,197.6L114.2,204.6L113.8,207.7L110.0,216.9L104.6,221.6L102.1,216.0L99.4,203.1L98.3,213.4L97.9,220.9L96.4,224.0L90.1,213.2L87.4,202.6L87.2,195.5L90.1,194.6L89.5,186.6L89.1,179.1L87.1,181.0L78.8,173.2L79.3,168.4L86.3,165.8L90.8,171.3L96.7,176.4L98.4,173.1L102.8,170.7L112.7,167.6L115.2,163.9L116.7,160.6L116.8,153.5L115.0,146.2L118.2,146.2L120.8,139.7L119.5,137.1L120.7,133.1L117.4,133.5L113.2,129.6L109.1,118.8L108.4,111.7L107.5,106.7L109.5,102.8L114.6,103.4L112.9,99.7L121.3,94.4L129.9,92.2L134.5,92.7L139.8,97.2L133.4,98.7L129.2,103.6L137.1,101.7L143.8,105.0L137.9,114.4L132.5,117.8ZM133.9,76.4L135.4,81.3L135.1,86.6L125.8,86.8L122.9,84.8L115.3,85.0L114.7,82.0L122.0,77.2L126.5,75.4L130.7,75.1ZM148.0,10.6L154.3,14.3L159.8,18.4L159.3,21.3L160.5,23.8L153.2,23.8L150.0,22.4L149.8,20.5L146.3,16.7L145.4,13.3ZM-27.5,-29.4L-28.9,-24.8L-36.7,-25.9L-44.3,-21.3L-43.5,-23.3L-38.9,-26.5L-34.8,-28.4L-31.5,-30.9L-27.8,-31.9L-25.6,-31.6ZM176.7,40.6L175.8,44.1L173.3,49.3L169.1,51.9L165.3,53.7L165.7,50.5L168.2,46.8L168,42.9L171.0,43.9L173.0,41.5ZM-83.5,23.6L-83.8,20.9L-78.2,11.0L-75.2,8.9L-71.3,3.5L-68.9,2.2L-65.9,-3.4L-61.3,-6.0L-59.8,-5.8L-63.1,-0.0L-65.2,3.4L-67.4,8.6L-70.5,10.8L-74.6,14.2L-79.0,20.4ZM131.9,12.9L129.4,16.2L128.1,22.2L125.1,24.6L121.0,27.5L118.9,24.6L113.1,18.6L107.1,15.5L103.1,15.6L100.1,8.3L104.5,6.9L110.8,1.0L114.3,2.3L120.5,4.5L126.0,7.0L132.2,5.0ZM143.4,42.3L145.1,43.9L145.0,46.2L140.4,47.6L135.8,47.2L133.7,39.8L129.5,34.5L129.4,31.0L132.5,30.4L136.5,34.7L135.8,24.6L137.8,21.5L146.8,24.0L149.3,25.8L145.8,31.9L140.2,36.3L139.7,40.2L148.6,35.9L152.1,37.3L151.2,39.5L146.7,40.9ZM117.7,50.6L114.3,54.3L105.5,58.3L99.1,60.9L95.4,67.0L92.2,73.6L88.1,74.6L86.4,69.9L83.3,73.0L79.8,73.1L80.3,67.0L82.0,61.0L81.1,57.5L77.5,52.4L75.9,44.7L75.1,39.2L79.4,36.8L82.1,32.2L81.3,29.6L88.9,25.2L89.7,27.1L90.9,31.5L90.3,35.7L91.8,39.3L94.1,33.4L93.8,27.2L94.4,23.1L97.9,21.4L101.0,27.7L101.2,23.4L104.3,18.4L110.9,20.4L114.3,22.0L119.4,28.5L117.5,31.2L113.2,30.4L115.8,35.8L111.1,40.0L116.0,42.2L113.0,45.1L104.1,49.1L108.0,49.6L117.4,45.8L118.9,47.8ZM116.9,66.9L122.2,62.3L127.3,63.8L126.1,67.3L128.4,71.1L126.0,72.7L121.0,72.0L118.2,77.3L110.0,80.0L105.2,77.0L105.3,74.1L108.3,71.0L114.0,62.2L116.9,61.4ZM122.5,49.3L123.3,52.5L121.5,54.9L115.1,54.2L121.1,48.8ZM154.9,59.3L151.0,62.2L146.3,63.9L139.2,65.3L137.3,61.9L138.3,59.1L143.7,57.6L142.2,54.3L149.5,52.2L149.6,54.5L153.4,56.6L153.6,59.5ZM192.0,51.6L195.2,51.5L196.3,52.7L198.2,51.3L199.8,54.1L195.6,57.7L194.7,60.8L194.1,63.7L188.8,67.7L187.0,70.8L183.3,70.2L175.3,70.5L173.3,67.9L173.1,64.0L176.1,60.8L179.4,59.5L182.3,59.8L181.2,57.0L183.7,54.3L187.6,51.9ZM206.0,52.8L208.4,53.8L209.3,54.9L211.8,56.4L215.9,56.3L216.1,57.7L214.4,60.1L219.4,58.3L221.6,58.7L223.6,59.8L225.9,62.2L225.4,63.2L228.8,64.6L229.9,66.7L231.2,68.8L232.9,71.3L233.9,73.7L233.9,77.0L232.2,78.9L227.0,80.0L223.2,79.4L220.8,80.1L223.0,82.0L216.4,83.9L212.7,84.1L204.9,87.5L201.4,86.1L199.1,86.5L195.1,83.3L195.5,85.8L193.4,85.9L190.5,90.0L186.8,90.7L182.8,90.0L179.1,91.5L175.1,90.9L173.4,92.4L175.8,95.0L173.9,96.5L165.8,95.3L165.0,89.1L160.6,84.5L160.2,81.2L158.9,77.5L163.1,75.2L166.6,77.5L172.5,73.5L173.6,74.2L172.3,80.6L176.6,75.4L176.9,71.9L180.9,71.5L184.4,73.1L187.6,71.8L189.9,68.0L194.1,65.2L195.7,69.0L195.4,70.6L199.7,70.7L198.9,67.4L195.9,63.2L197.8,59.5L200.9,56.8L203.0,54.3ZM107.9,159.8L104.3,159.9L101.5,157.2L104.5,153.4L109.6,151.0L112.6,152.5L112.2,156.4L109.2,159.2ZM91.1,89.3L88.3,92.5L84.7,92.0L86.1,86.8L84.4,84.7L87.4,79.1L90.8,80.7L95.2,81.2L93.6,85.3L92.5,87.7ZM36.0,322.6L38.1,323.2L43.0,330.1L46.0,337.2L45.2,338.7L42.8,337.1L38.1,329.8ZM24.5,346.6L23.9,351.7L27.0,355.7L31.8,359.0L27.4,360.4L25.2,359.4L20.8,351.0L21.1,347.4ZM-99.9,-131.4L-98.7,-132.4L-98.8,-132.4L-99.5,-131.7L-98.6,-132.5L-98.7,-132.4L-99.2,-131.9L-102.1,-129.2L-102.1,-129.2L-103.4,-128.0L-104.8,-126.7L-107.2,-124.4L-107.2,-124.5L-105.2,-126.3L-105.2,-126.4L-105.2,-126.4ZM-96.6,-134.2L-96.4,-134.4L-94.4,-136.2L-92.8,-137.6L-91.9,-138.5L-91.7,-138.6L-92.1,-138.2L-94.6,-136.0ZM-90.7,-139.4L-90.8,-139.4L-87.3,-142.5L-87.5,-142.3ZM-81.2,-147.6L-81.9,-147.0L-84.6,-144.8L-84.4,-145.0L-83.9,-145.4L-81.5,-147.4L-80.1,-148.6L-79.8,-148.9ZM-71.1,-155.9L-71.8,-155.4L-71.3,-155.9L-68.6,-158.0L-68.7,-157.9L-69.5,-157.2ZM119.1,-141.6L115.6,-140.0L113.3,-141.2L114.9,-143.4L118.5,-144.3L122.2,-144.8ZM56.6,-109.9L53.9,-107.7L50.5,-107.0L50.5,-111.2L51.7,-115.7L55.1,-116.8L58.5,-116.2L57.5,-112.1ZM155.2,-138.4L152.1,-138.1L150.3,-136.4L146.0,-135.9L141.8,-134.4L141.5,-135.1L143.4,-137.7L147.2,-138.3L149.5,-138.2L152.5,-140.3L153.8,-140.3ZM-126.1,508.0L-129.7,502.8L-132.6,500.2L-136.0,495.8L-139.1,493.9L-141.4,488.5L-140.1,487.2L-135.2,494.0L-131.0,499.3L-128.3,500.3L-130.0,494.8L-129.0,492.6L-132.2,487.6L-130.2,487.4L-126.8,491.5L-122.1,497.9L-120.9,497.7L-116.2,502.5L-113.3,507.8L-111.6,509.2L-111.3,512.5L-107.9,515.7L-108.8,517.3L-106.0,520.2L-103.8,525.4L-107.0,525.6L-109.6,521.5L-112.5,518.9L-114.5,516.6L-116.0,516.6L-118.5,514.6L-118.9,512.2L-121.3,511.0L-125.3,512.6L-126.4,510.0ZM358.6,-4.9L355.2,-6.8L358.0,-10.8L364.0,-17.3L371.6,-20.3L374.7,-17.6L374.8,-12.6L372.8,-9.0L367.2,-5.9L366.3,-3.5ZM365.4,-22.8L367.1,-28.5L370.5,-29.9L379.9,-23.0L367.4,-20.8L365.7,-21.5ZM324.0,-79.7L318.2,-81.7L311.2,-87.4L314.7,-92.3L323.7,-89.8L328.4,-90.2L331.1,-84.3L327.5,-80.1ZM304.0,-90.3L298.2,-93.0L301.6,-95.5L305.5,-94.3L309.5,-90.7L308.3,-88.5ZM329.8,-99.3L326.2,-97.3L322.7,-97.6L319.9,-101.1L320.2,-102.9L324.3,-102.0L329.5,-99.7ZM364.1,61.2L363.7,57.9L364.4,55.9L367.0,56.6L365.1,55.0L364.0,53.2L366.7,51.9L368.0,52.9L368.5,55.2L368.7,56.7L370.2,57.5L371.0,59.8L368.2,60.4L365.7,58.4ZM431.7,70.8L425.1,62.5L420.8,61.8L417.0,55.5L412.1,47.1L411.0,39.9L407.7,36.0L406.5,32.0L410.2,31.0L413.2,32.6L417.7,40.8L421.5,48.3L429.3,57.5L437.6,63.7L445.5,70.6L453.1,72.7L461.8,69.9L462.2,71.8L458.7,80.6L454.5,79.8L450.6,83.6L445.7,82.0L444.6,78.6L439.7,76.7L433.4,69.0ZM366.2,-210.0L366.2,-214.4L368.3,-218.3L367.8,-222.7L364.8,-230.4L373.4,-227.2L380.0,-231.2L375.6,-235.9L377.1,-238.0L380.9,-235.0L386.6,-236.3L386.2,-233.4L383.6,-230.6L382.1,-226.8L379.1,-224.6L376.1,-219.8L377.5,-215.2L374.0,-210.0L367.8,-209.4L369.0,-206.9L366.3,-206.9ZM213.4,-107.7L213.2,-107.4L210.8,-106.5L205.6,-106.6L205.3,-107.5L207.4,-110.2L211.1,-112.0L214.2,-113.5L215.8,-111.7ZM-139.1,408.1L-136.6,410.6L-133.5,415.1L-134.3,416.9L-140.1,410.8ZM-132.4,414.2L-130.2,422.1L-133.5,425.4L-134.0,423.4L-132.1,420.3L-132.8,415.0ZM-140.9,422.9L-139.6,425.1L-140.6,432.4L-142.5,436L-143.9,434.6L-143.3,429.5L-144.2,425.3ZM340.6,101.1L339.1,98.2L340.8,96.5L344.6,97.9L353.8,99.7L352.8,105.4L356.6,111.5L356.4,113.9L360.6,120.8L358.7,122.6L351.4,120.3L351.0,116.5L346.9,115.9L339.2,111.1L333.9,105.5L335.9,100.3L338.6,102.6ZM353.4,85.6L355.6,90.8L352.8,94.9L347.9,97.0L345.9,95.2L343.9,96.5L339.7,94.2L341.7,89.3L345.0,89.5L344.1,86.4L348.7,85.5ZM365.7,103.4L365.3,109.2L361.0,109.8L360.4,107.1L357.4,105.5L359.0,101.6L362.1,103.7ZM249.9,86.0L255.8,82.3L259.5,83.9L262,81.0L265.9,81.1L274.3,83.4L281.4,90.9L279.0,94.5L274.0,94.7L266.9,94.8L267.3,96.5L272.1,96.1L276.0,99.5L278.7,96.8L279.9,100.1L278.2,105.5L281.9,102.0L288.5,98.0L292.9,99.3L294.4,103.1L289.1,110.4L288.4,112.6L283.2,114.5L287.1,114.8L285.5,121.7L284.3,127.8L284.8,138.3L287.7,144.4L284.3,144.9L280.7,148.0L285.0,153.0L285.9,161.0L283.3,162.0L286.9,170.1L281.0,170.9L284.2,174.8L283.4,178.2L279.5,179.7L275.5,179.7L279.0,186.3L279.1,190.6L273.3,186.5L271.7,189.0L275.6,191.5L279.5,197.5L280.7,205.3L274.9,207.1L272.6,203.3L268.9,197.5L269.6,204.1L265.5,209.0L274.2,209.8L278.8,210.4L269.5,218.7L259.4,225.7L248.5,227.8L244.5,227.3L240.1,230.4L233.1,239.6L223.4,244.5L220.7,244.3L215.0,245.3L208.8,246.0L203.7,250.8L201.7,257.4L197.8,262.9L188.6,268.1L187.9,275.9L183.5,282.9L178.2,291.2L171.6,289.4L167.9,279.5L159.3,275.8L157.3,269.1L158.5,259.1L157.0,244.8L157.9,238.2L161.4,230.1L160.9,219.6L165.5,213.9L165.0,209.7L173.6,201.4L180.0,200.6L183.1,197.6L187.2,191.1L182.2,192.5L179.9,192.9L176.6,192.7L174.6,188.0L177.8,182.1L181.5,178.3L184.1,179.6L188.5,184.8L186.7,176.9L186.0,172.7L182.7,172.4L181.8,169.1L189.4,163.0L189.8,159.1L191.5,152.3L194.6,142.1L194.1,137.3L196.5,134.0L194.8,125.9L191.5,122.5L186.6,119.0L182.1,115.9L182.5,112.0L184.4,105.2L190.4,106.9L193.8,109.3L189.4,101.6L189.4,95.9L192.5,93.6L200.7,95.4L208.7,96.4L211.6,94.3L210.8,88.9L214.5,87.2L223.1,85.6L225.4,86.1L227.7,82.5L231.9,82.5L236.1,83.5L239.5,85.4L239.2,88.6L244.9,85.7L246.1,90.1L247.5,91.4L248.8,95.2L248,89.5ZM490.6,423.3L493.2,418.0L497.2,424.5L497.8,432.0L494.3,431.9L490.6,427.0ZM-90.7,537.9L-87.5,541.4L-86.7,543.7L-88.9,543.8L-93.9,539.4L-97.9,536.2L-97.3,533.2L-96.1,533.2ZM-158.0,466.9L-154.7,472.0L-152.4,476.9L-152.2,479.6L-156.0,475.0L-158.0,473.9L-160.6,469.1L-162.7,463.1L-161.5,462.7L-159.1,465.1ZM-167.0,407.3L-163.3,413.7L-159.7,419.2L-156.3,427.6L-155.6,432.4L-150.6,438.1L-149.5,441.8L-147.1,451.1L-145.1,458.0L-143.3,460.1L-140.7,465.2L-141.9,466.4L-138.0,471.5L-134.9,478.8L-136.2,479.4L-140.2,475.9L-144.0,471.7L-147.5,466.7L-155.3,457.7L-150.3,458.9L-151.7,454.7L-154.8,449.9L-155.7,445.9L-155.2,440.9L-158.2,437.3L-161.9,429.4L-162.6,426.1L-168.2,416.2L-169.1,412.6L-166.6,413.8L-170.9,406.6L-175.7,404.6L-177.5,401.7L-178.9,402.0L-181.4,399.1L-182.8,395.5L-179.6,397.6L-177.5,397.1L-174.9,399.0L-172.0,401.5L-168.4,406.3ZM621.1,404.0L621.7,406.7L614.3,414.9L613.6,413.7L606.1,418.5L605.4,414.6L609.8,414.2L613.8,409.7L618.1,406.3L618.7,407.7ZM369.9,357.7L372.3,364.2L369.9,373.6L360.7,381.5L352.1,381.8L355.0,371.0L350.3,361.9L356.5,353L359.7,347.6L364.2,346.2L371.3,350.5ZM824.1,147.6L824.2,148.1L822.7,143.6L819.4,133.1L818.8,129.6L818.8,128.5L819.1,128.8L819.1,128.8L820.1,132.2L820.1,132.2ZM681.8,-110.0L682.8,-108.9L680.9,-110.8L676.8,-114.8L669.4,-122.2L666.0,-125.6L665.5,-126.1L669.3,-122.5L670.6,-121.2L670.6,-121.2ZM594.5,-183.2L596.2,-182.0L595.2,-182.5L588.7,-186.6L581.1,-191.2L578.6,-193.0L581.3,-191.5L581.3,-191.5L589.4,-186.7L593.6,-183.9L593.6,-183.9ZM543.5,437.3L547.9,433.5L548.5,441.1L550.5,442.9L551.1,447.7L544.9,448.0L541.4,449.2L530.8,450.8L529.9,446.2L537.6,442.3ZM496.1,437.7L498.3,433.5L504.4,437.3L507.9,448.6L504.7,449.6L503.1,453.8L499.8,452.9L495.8,443.1L492.4,439.2ZM456.2,298.5L460.0,301.9L460.9,310.4L453.5,308.5L451.0,305.3ZM388.1,357.3L388.1,357.2L387.4,351.6L382.3,347.0L382.1,346.9L375.2,347.1L373.3,344.9L374.2,340.2L371.8,338.1L370.0,343.3L367.5,334.3L363.7,330.2L363.2,320.0L365.1,311.3L369.2,310.9L374.8,308.4L372.4,320.1L377.1,317.3L382.5,315.7L383.5,323.7L381.4,333.4L386.9,332.4L387.6,333.2L395.5,342.5L399.6,342.8L406.3,352.0L409.0,355.0L416.1,354.3L417.5,360.3L415.5,364.0L419.3,367.8L415.8,374.5L408.1,377.1L398.9,382.9L395.7,382.0L392.9,387.5L387.2,388.0L383.8,392.7L380.2,391.7L386.5,379.6L391.2,376.1L391.2,376.1L381.8,377.1L379.2,373.9L384.5,369.3L380.2,365.2L379.7,358.8ZM309.1,244.5L308.9,250.9L314.3,256.9L309.9,265.0L298.2,272.7L294.5,274.7L288.8,273.5L276.7,270.5L280.9,266.2L271.8,261.3L279.2,259.6L279.0,256.7L270.6,254.3L273.5,248.0L279.4,246.6L285.7,253.2L291.5,247.7L296.6,250.2L302.6,244.5ZM400.5,-252.1L408.9,-252.1L410.6,-253.8L414.8,-254.1L414.4,-255.2L419.5,-254.9L430.1,-252.5L443.5,-248.3L456.5,-245.5L460.8,-243.4L459.5,-242.6L472.8,-237.8L482.6,-234.5L491.1,-230.7L485.5,-234.5L494.4,-233.0L500.1,-230.9L502.8,-229.1L498.8,-229.7L502.7,-227.4L503.9,-225.7L496.4,-228.8L491.0,-230.1L482.5,-233.0L475.6,-234.6L460.4,-240.2L453.1,-243.3L441.6,-243.9L437.7,-246.2L425.0,-248.2L420.1,-248.8L413.2,-248.1L412.2,-245.5L408.0,-245.1L400.2,-246.7L398.8,-250.6ZM373.3,-245.8L367.8,-245.7L367.9,-249.0L378.6,-247.5L386.4,-248.6L396.1,-244.2L402.0,-245.7L409.7,-243.6L408.7,-241.1L403.7,-240.2L396.4,-242.0L391.7,-238.9L388.2,-237.3L382.3,-242.1L377.7,-244.2ZM482.0,-235.4L476.6,-236.7L472.6,-238.6L468.7,-239.4L463.7,-241.7L463.5,-242.4L469.0,-241.2L471.4,-239.8L475.7,-238.4L479.0,-237.9L483.2,-235.7ZM653.8,369.2L654.1,368.8L653.7,366.4L657.0,362.2L659.6,355.0L658.7,361.7L659.9,362.5L660.4,362.8L657.6,371.5L654.7,373.5L651.8,372.2ZM-71.2,609.7L-66.8,612.1L-65.3,613.5L-66.4,617.4L-72.8,613.5L-74.0,612.0L-71.5,612.1Z" fill="#E9E4D6" stroke="#9E9682" stroke-width=".8"/>
+      <path d="M249.9,86.0L255.8,82.3L259.5,83.9L262,81.0L265.9,81.1L274.3,83.4L281.4,90.9L279.0,94.5L274.0,94.7L266.9,94.8L267.3,96.5L272.1,96.1L276.0,99.5L278.7,96.8L279.9,100.1L278.2,105.5L281.9,102.0L288.5,98.0L292.9,99.3L294.4,103.1L289.1,110.4L288.4,112.6L283.2,114.5L287.1,114.8L285.5,121.7L284.3,127.8L284.8,138.3L287.7,144.4L284.3,144.9L280.7,148.0L285.0,153.0L285.9,161.0L283.3,162.0L286.9,170.1L281.0,170.9L284.2,174.8L283.4,178.2L279.5,179.7L275.5,179.7L279.0,186.3L279.1,190.6L273.3,186.5L271.7,189.0L275.6,191.5L279.5,197.5L280.7,205.3L274.9,207.1L272.6,203.3L268.9,197.5L269.6,204.1L265.5,209.0L274.2,209.8L278.8,210.4L269.5,218.7L259.4,225.7L248.5,227.8L244.5,227.3L240.1,230.4L233.1,239.6L223.4,244.5L220.7,244.3L215.0,245.3L208.8,246.0L203.7,250.8L201.7,257.4L197.8,262.9L188.6,268.1L187.9,275.9L183.5,282.9L178.2,291.2L171.6,289.4L167.9,279.5L159.3,275.8L157.3,269.1L158.5,259.1L157.0,244.8L157.9,238.2L161.4,230.1L160.9,219.6L165.5,213.9L165.0,209.7L173.6,201.4L180.0,200.6L183.1,197.6L187.2,191.1L182.2,192.5L179.9,192.9L176.6,192.7L174.6,188.0L177.8,182.1L181.5,178.3L184.1,179.6L188.5,184.8L186.7,176.9L186.0,172.7L182.7,172.4L181.8,169.1L189.4,163.0L189.8,159.1L191.5,152.3L194.6,142.1L194.1,137.3L196.5,134.0L194.8,125.9L191.5,122.5L186.6,119.0L182.1,115.9L182.5,112.0L184.4,105.2L190.4,106.9L193.8,109.3L189.4,101.6L189.4,95.9L192.5,93.6L200.7,95.4L208.7,96.4L211.6,94.3L210.8,88.9L214.5,87.2L223.1,85.6L225.4,86.1L227.7,82.5L231.9,82.5L236.1,83.5L239.5,85.4L239.2,88.6L244.9,85.7L246.1,90.1L247.5,91.4L248.8,95.2L248,89.5Z" fill="#FFFFFF" stroke="#8FB8CC" stroke-width="1.5"/>
+      <path d="M123.6,188.1L118.2,183.2L113.0,178.1L107.9,172.8L103.1,167.4L98.5,161.8L94.1,156.1L89.9,150.2L86.0,144.3L82.3,138.2L78.8,132.0L75.6,125.6L72.6,119.2L69.9,112.8L67.4,106.2L65.2,99.5L63.3,92.8L61.6,86.1L60.2,79.2L59.1,72.4L58.2,65.5L57.6,58.6L57.3,51.7L57.2,44.8L57.4,37.8L57.9,30.9L58.6,24.0L59.7,17.2L61.0,10.3L62.5,3.5L64.3,-3.1L66.4,-9.8L68.8,-16.4L71.4,-22.9L74.2,-29.4L77.3,-35.7L80.7,-42.0L84.3,-48.1L88.1,-54.1L92.2,-60.0L96.5,-65.8L101.0,-71.4L105.8,-76.9L110.7,-82.3L115.9,-87.5L121.2,-92.5L126.8,-97.3L132.5,-102.0L138.4,-106.5L144.5,-110.8L150.8,-114.9L157.2,-118.8L163.8,-122.5L170.5,-126.1L177.3,-129.4L184.3,-132.4L191.3,-135.3L198.5,-138.0L205.8,-140.4L213.2,-142.6L220.6,-144.5L228.2,-146.3L235.8,-147.7L243.4,-149.0L251.1,-150.0L258.8,-150.8L266.6,-151.3L274.4,-151.6L282.1,-151.7L289.9,-151.5L297.7,-151.1L305.4,-150.4L313.1,-149.5L320.8,-148.3L328.4,-146.9L336.0,-145.3L343.4,-143.5L350.9,-141.4L358.2,-139.0L365.4,-136.5L372.5,-133.7L379.6,-130.7L386.4,-127.5L393.2,-124.1L399.8,-120.5L406.3,-116.7L412.6,-112.6L418.8,-108.4L424.8,-104.0L430.6,-99.4L436.3,-94.6L441.7,-89.7L446.9,-84.6L452.0,-79.3L456.8,-73.9L461.4,-68.3L465.8,-62.6L470.0,-56.7L473.9,-50.8L477.7,-44.7L481.1,-38.5L484.3,-32.2L487.3,-25.8L490.0,-19.3L492.5,-12.7L494.7,-6.0L496.6,0.6L498.3,7.3L499.7,14.1L500.8,21.0L501.7,27.9L502.3,34.8L502.6,41.7L502.7,48.6L502.5,55.6L502.0,62.5L501.3,69.4L500.2,76.2L498.9,83.1L497.4,89.9L495.6,96.6L493.5,103.3L491.1,109.9L488.5,116.4L485.7,122.8L482.6,129.2L479.2,135.4L475.6,141.6L471.8,147.6L467.7,153.5L463.4,159.3L458.9,164.9L454.1,170.4L449.2,175.8L444.0,180.9L438.7,186.0L433.1,190.8L427.4,195.5L421.5,200.0L415.4,204.3L409.1,208.4L402.7,212.3L396.1,216.0L389.4,219.5L382.6,222.8L375.6,225.9L368.6,228.8L361.4,231.4L354.1,233.9L346.7,236.1L339.3,238.0L331.7,239.7L324.1,241.2L316.5,242.5L308.8,243.5L301.1,244.3L293.3,244.8L285.5,245.1L277.8,245.2L270.0,245.0L262.2,244.5L254.5,243.9L246.8,243.0L239.1,241.8L231.5,240.4L223.9,238.8L216.5,236.9L209.0,234.9L201.7,232.5L194.5,230.0L187.4,227.2L180.3,224.2L173.5,221.0L166.7,217.6L160.1,214.0L153.6,210.2L147.3,206.1L141.1,201.9L135.1,197.5L129.3,192.9Z" fill="none" stroke="#185FA5" stroke-width="2" stroke-dasharray="6 5"/>
+      <g font-family="Atkinson Hyperlegible, Verdana, sans-serif" font-weight="700">
+        <text x="196.4" y="231.3" text-anchor="middle" font-size="20" fill="#5E666C" letter-spacing="2">GROENLAND</text>
+        <text x="294.6" y="262" text-anchor="middle" font-size="14" fill="#5E666C">IJsland</text>
+        <text x="545" y="540" text-anchor="end" font-size="14" fill="#161A1D">Antarctica ligt ver naar het zuiden ↓</text>
+      </g>
+      <g class="pin" tabindex="0" role="button" data-plek="dickson" aria-label="Dickson Fjord"><circle cx="264.7" cy="184.1" r="9" fill="#A32D2D" stroke="#fff" stroke-width="3"/><text x="264.7" y="184.1" dx="14" dy="5" font-size="15" font-weight="700" font-family="Atkinson Hyperlegible, Verdana, sans-serif" fill="#161A1D">Dickson Fjord</text></g>
+      <g class="pin" tabindex="0" role="button" data-plek="pituffik" aria-label="Pituffik"><circle cx="184.9" cy="112.7" r="9" fill="#A32D2D" stroke="#fff" stroke-width="3"/><text x="184.9" y="112.7" dy="-15" text-anchor="middle" font-size="15" font-weight="700" font-family="Atkinson Hyperlegible, Verdana, sans-serif" fill="#161A1D">Pituffik</text></g>
+      <g class="pin" tabindex="0" role="button" data-plek="nederland" aria-label="Nederland"><circle cx="437.8" cy="351.8" r="8" fill="#F2B705" stroke="#161A1D" stroke-width="2"/><text x="437.8" y="351.8" dx="12" dy="5" font-size="15" font-weight="700" font-family="Atkinson Hyperlegible, Verdana, sans-serif" fill="#161A1D">Nederland</text></g>
+      <g font-size="14" font-family="Atkinson Hyperlegible, Verdana, sans-serif"><text x="20" y="525" fill="#161A1D" font-weight="700">wit = Groenland met de ijskap</text><text x="20" y="545" fill="#185FA5">- - - noordpoolcirkel</text></g>
+    </svg>
+    <div id="plekInfo" aria-live="polite"><b>Nog niets gekozen.</b><br>Klik op Dickson Fjord, Pituffik of Nederland.</div>
+  </div>
+</section>
+
+<!-- GEVOLGEN -->
+<section id="gevolgen">
+  <hr class="lijn">
+  <div style="margin-top:22px"><span class="rubriek g">De gevolgen</span></div>
+  <h2 class="gevolgkop">Wat gebeurt er doordat de ijskappen smelten?</h2>
+
+  <article class="gevolg">
+    <div class="nr">1</div>
+    <div class="tek">
+      <h3>De zee stijgt over de hele wereld</h3>
+      <p class="doordat"><em>Doordat de ijskappen smelten,</em> stroomt er heel veel water van het land naar de zee.</p>
+      <p>Dat water komt erbij in de zee. Daardoor stijgt de zeespiegel. Tussen 1992 en 2018 liet Groenland de zee wereldwijd ruim 1 centimeter stijgen. Dat klinkt weinig. Maar bij elke centimeter lopen ongeveer 6 miljoen mensen extra kans op een overstroming.</p>
+      <p class="cijfer">Groenland en Antarctica laten de zee nu samen ongeveer 1,2 millimeter per jaar stijgen.</p>
+      <p class="bron">Bron: IMBIE via Universiteit van Leeds (2019); NSIDC.</p>
+      <button class="voorlees" type="button">Lees voor</button>
+    </div>
+    <div class="plaat"><svg viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#DCEAF0"/><path d="M0 70 L70 70 Q90 72 110 100 L0 100Z" fill="#F7FAFC" stroke="#8FB8CC" stroke-width="2"/><path d="M0 100 L120 100 L140 160 L0 160Z" fill="#6E6A64"/><rect x="110" y="104" width="110" height="56" fill="#3E7FA8"/><path d="M110 116 L220 116" stroke="#185FA5" stroke-width="3" stroke-dasharray="5 3"/><path d="M90 84 Q104 96 112 112" fill="none" stroke="#5E9AC0" stroke-width="4"/><path d="M196 140 L196 112" stroke="#A32D2D" stroke-width="4"/><path d="M188 118 L196 104 L204 118Z" fill="#A32D2D"/></svg></div>
+  </article>
+
+  <article class="gevolg">
+    <div class="nr">2</div>
+    <div class="tek">
+      <h3>Ook bij Nederland stijgt het water</h3>
+      <p class="doordat"><em>Doordat smeltwater van de ijskappen in de oceaan komt,</em> stijgt de zee ook langs onze kust.</p>
+      <p>Dat komt door smeltend landijs, maar ook doordat zeewater uitzet als het warmer wordt. Gek genoeg merken wij het smelten van Antarctica meer dan dat van Groenland. Dat komt door de <button class="woord" type="button" data-u="Een enorme ijskap trekt het zeewater een beetje naar zich toe. Als het ijs smelt, laat hij dat water los. Het water stroomt dan verder weg. Daarom stijgt de zee vlak bij Groenland juist minder, en verder weg meer.">zwaartekracht</button> van het ijs.</p>
+      <p class="cijfer">Bij de Nederlandse kust stijgt de zee nu ongeveer 3 millimeter per jaar. Dat is 1,5 keer zo snel als gemiddeld in de vorige eeuw.</p>
+      <p class="bron">Bron: KNMI (2022); KNMI (2019).</p>
+      <button class="voorlees" type="button">Lees voor</button>
+    </div>
+    <div class="plaat"><svg viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#DCEAF0"/><rect y="104" width="90" height="56" fill="#3E7FA8"/><path d="M0 92 L90 92" stroke="#fff" stroke-width="2" stroke-dasharray="4 3"/><path d="M80 160 L110 70 L132 70 L162 160Z" fill="#7FA35A" stroke="#4D6B33" stroke-width="2"/><rect x="170" y="118" width="40" height="30" fill="#E9D8B4" stroke="#161A1D" stroke-width="2"/><path d="M164 120 L190 96 L216 120Z" fill="#A32D2D" stroke="#161A1D" stroke-width="2"/><rect y="148" width="220" height="12" fill="#7FA35A"/><path d="M44 132 L44 108" stroke="#A32D2D" stroke-width="4"/><path d="M36 114 L44 100 L52 114Z" fill="#A32D2D"/></svg></div>
+  </article>
+
+  <article class="gevolg">
+    <div class="nr">3</div>
+    <div class="tek">
+      <h3>Een berg stortte in zee</h3>
+      <p class="doordat"><em>Doordat het ijs smelt,</em> werd de gletsjer onder aan een berg dunner. Het ijs kon de rotswand niet meer tegenhouden.</p>
+      <p>In september 2023 stortte in Oost-Groenland een berg in de <b>Dickson Fjord</b>. Steen en ijs vielen in het water, en er ontstond een reuzegolf. Daarna klotste het water 9 dagen heen en weer in de smalle <button class="woord" type="button" data-u="Een smalle, diepe arm van de zee tussen hoge bergen.">fjord</button>. Meetapparaten over de hele wereld voelden de aarde trillen.</p>
+      <p class="cijfer">Het water spatte tot 200 meter hoog op. Er viel genoeg steen en ijs om 10.000 Olympische zwembaden te vullen.</p>
+      <p class="bron">Bron: Svennevig e.a. (2024), Science; UCL (2024).</p>
+      <button class="voorlees" type="button">Lees voor</button>
+    </div>
+    <div class="plaat"><svg viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#DCEAF0"/><path d="M0 160 L0 40 L50 20 L90 70 L100 160Z" fill="#6E6A64"/><path d="M60 46 L96 88 L120 120 L84 112Z" fill="#8C8680" stroke="#4A4642" stroke-width="2"/><path d="M0 120 L80 120 L100 160 L0 160Z" fill="#F7FAFC" stroke="#8FB8CC" stroke-width="2"/><path d="M220 160 L220 50 L180 40 L150 90 L140 160Z" fill="#6E6A64"/><rect x="96" y="124" width="52" height="36" fill="#3E7FA8"/><path d="M98 126 Q112 60 128 112 Q136 84 146 126" fill="#9CC3DA" stroke="#fff" stroke-width="2"/></svg></div>
+  </article>
+
+  <article class="gevolg">
+    <div class="nr">4</div>
+    <div class="tek">
+      <h3>Groenland wordt groener</h3>
+      <p class="doordat"><em>Doordat het ijs aan de randen wegsmelt,</em> komt er kale grond tevoorschijn.</p>
+      <p>Eerst ligt er kale rots. Later groeien er planten en struiken. Ook ontstaan er moerassen, vooral in het oosten en noordoosten. Dat lijkt mooi, maar donkere grond neemt meer warmte op dan wit ijs. Zo wordt het er nog warmer.</p>
+      <p class="cijfer">In 30 jaar verdween bijna 29.000 km² ijs, bijna zo groot als België. Het land met planten werd meer dan 2 keer zo groot.</p>
+      <p class="bron">Bron: Grimes e.a. (2024), Universiteit van Leeds.</p>
+      <button class="voorlees" type="button">Lees voor</button>
+    </div>
+    <div class="plaat"><svg viewBox="0 0 220 160" aria-hidden="true"><rect width="220" height="160" fill="#DCEAF0"/><path d="M110 60 Q170 40 220 54 L220 120 L130 120Z" fill="#F7FAFC" stroke="#8FB8CC" stroke-width="2"/><rect y="110" width="220" height="50" fill="#8C8680"/><g fill="#3F7D4E"><path d="M10 112 Q20 84 30 112Z"/><path d="M36 112 Q48 78 60 112Z"/><path d="M66 112 Q74 92 82 112Z"/><path d="M90 112 Q100 86 110 112Z"/></g><ellipse cx="60" cy="134" rx="40" ry="8" fill="#5E9AC0"/></svg></div>
+  </article>
+
+  <div style="margin-top:26px">
+    <h3 style="font-size:24px">Een cirkel die steeds sneller gaat</h3>
+    <p style="margin:6px 0 10px">Wit ijs kaatst meer dan de helft van het zonlicht terug. Maar smelten maakt het ijs donkerder: er komen meertjes, vuil ijs en kale grond. Donker neemt meer zonlicht op, net als een zwart T-shirt in de zon. Volg de pijlen.</p>
+    <svg class="kring" viewBox="0 0 640 320" role="img" aria-label="Kringloop: het wordt warmer, de ijskap smelt, het ijs wordt donkerder, het neemt meer zonlicht op, het wordt nog warmer.">
+      <defs><marker id="pk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10Z" fill="#161A1D"/></marker></defs>
+      <g fill="none" stroke="#161A1D" stroke-width="3" marker-end="url(#pk)"><path d="M402 58 Q500 66 520 124"/><path d="M520 204 Q500 262 402 266"/><path d="M238 266 Q140 262 120 204"/><path d="M120 124 Q140 66 238 58"/></g>
+      <g fill="#fff" stroke-width="3"><rect x="230" y="28" width="180" height="60" stroke="#161A1D"/><rect x="445" y="134" width="190" height="60" stroke="#185FA5"/><rect x="230" y="236" width="180" height="60" stroke="#A32D2D"/><rect x="5" y="134" width="190" height="60" stroke="#A32D2D"/></g>
+      <text x="320" y="55" text-anchor="middle">Het wordt</text><text x="320" y="75" text-anchor="middle">warmer</text>
+      <text x="540" y="161" text-anchor="middle" fill="#185FA5">De ijskap</text><text x="540" y="181" text-anchor="middle" fill="#185FA5">smelt</text>
+      <text x="320" y="263" text-anchor="middle" fill="#A32D2D">Het ijs wordt</text><text x="320" y="283" text-anchor="middle" fill="#A32D2D">donkerder</text>
+      <text x="100" y="161" text-anchor="middle" fill="#A32D2D">Het neemt meer</text><text x="100" y="181" text-anchor="middle" fill="#A32D2D">zonlicht op</text>
+    </svg>
+    <p class="bron" style="margin-top:8px">Bron: climate.gov (NOAA); Universiteit van Leeds (2024).</p>
+  </div>
+</section>
+
+<!-- KIJK ZELF -->
+<section>
+  <hr class="lijn">
+  <h2 style="font-size:28px;margin:18px 0 8px">Kijk zelf</h2>
+  <ul class="lijstje">
+    <li><a href="https://vpro.nl/speel~WO_NTR_12918596~smeltend-ijs-op-groenland-klimaatjagers-in-de-klas~.html" target="_blank" rel="noopener"><span><b>Video: Smeltend ijs op Groenland</b>Klimaatjagers in de klas gaat mee naar de ijskap.</span><span class="ga" aria-hidden="true">→</span></a></li>
+    <li><a href="https://science.nasa.gov/earth/earth-observatory/a-half-century-of-loss-in-northwest-greenland-150267/" target="_blank" rel="noopener"><span><b>Vroeger en nu: gletsjers bij Pituffik</b>Satellietfoto's van NASA. Vergelijk 1973 met 2022.</span><span class="ga" aria-hidden="true">→</span></a></li>
+  </ul>
+</section>
+
+<!-- TOETS -->
+<section>
+  <hr class="lijn">
+  <h2 style="font-size:28px;margin:18px 0 10px">Check jezelf</h2>
+  <div class="toets" id="quiz"></div>
+  <p id="score" aria-live="polite" style="margin-top:10px"></p>
+</section>
+
+<footer>
+  <hr class="lijn">
+  <h3 style="margin:18px 0 8px">Bronnen</h3>
+  <ol>
+    <li><a href="https://wmo.int/media/news/wmo-confirms-2024-warmest-year-record-about-155degc-above-pre-industrial-level">WMO (2025): 2024 warmste jaar ooit gemeten</a></li>
+    <li><a href="https://climate.leeds.ac.uk/news/greenland-ice-losses-rising-faster-than-expected/">IMBIE via Universiteit van Leeds (2019): Groenland verliest 7 keer zoveel ijs als in de jaren 90</a></li>
+    <li><a href="https://nsidc.org/learn/parts-cryosphere/ice-sheets/ice-sheet-quick-facts">NSIDC: Ice sheet quick facts</a></li>
+    <li><a href="https://nsidc.org/learn/parts-cryosphere/ice-sheets/why-ice-sheets-matter">NSIDC: Why ice sheets matter</a></li>
+    <li>Rantanen e.a. (2022), Communications Earth &amp; Environment: het noordpoolgebied warmt bijna 4 keer zo snel op</li>
+    <li><a href="https://www.knmi.nl/over-het-knmi/nieuws/zeespiegel-nederlandse-kust-stijgt-sneller-door-klimaatverandering">KNMI (2022): Zeespiegel Nederlandse kust stijgt nu sneller</a></li>
+    <li><a href="https://www.knmi.nl/over-het-knmi/nieuws/de-groenlandse-ijskap-smelt-steeds-sneller">KNMI (2019): De Groenlandse ijskap smelt steeds sneller</a></li>
+    <li><a href="https://pubmed.ncbi.nlm.nih.gov/39264997/">Svennevig e.a. (2024), Science: A rockslide-generated tsunami in a Greenland fjord rang Earth for 9 days</a></li>
+    <li><a href="https://www.ucl.ac.uk/mathematical-physical-sciences/news/2024/sep/climate-change-triggered-landslide-caused-earth-vibrate-nine-days">UCL (2024): aardverschuiving liet de aarde 9 dagen trillen</a></li>
+    <li><a href="https://sciencedaily.com/releases/2024/02/240213130450.htm">Universiteit van Leeds via ScienceDaily (2024): Groenland wordt groener (Grimes e.a., Scientific Reports)</a></li>
+    <li><a href="https://www.climate.gov/news-features/understanding-climate/greenland-ice-sheet-getting-darker">climate.gov (NOAA): Greenland ice sheet getting darker</a></li>
+    <li><a href="https://science.nasa.gov/earth/earth-observatory/a-half-century-of-loss-in-northwest-greenland-150267/">NASA Earth Observatory (2022): A half-century of loss in Northwest Greenland</a></li>
+    <li><a href="https://vpro.nl/speel~WO_NTR_12918596~smeltend-ijs-op-groenland-klimaatjagers-in-de-klas~.html">Klimaatjagers in de klas: Smeltend ijs op Groenland</a></li>
+  </ol>
+</footer>
+</div>
+
+<div class="pop" id="pop" role="tooltip" hidden></div>
+
+<script>
+(function(){
+  // Broeikas
+  const deken=document.getElementById('deken'), kwik=document.getElementById('kwik'), terug=document.querySelectorAll('#warmte .terug');
+  const bt=document.getElementById('broeikasTekst'), b1=document.getElementById('j1850'), b2=document.getElementById('j2024');
+  function zetJaar(nu){
+    b1.setAttribute('aria-pressed',String(!nu)); b2.setAttribute('aria-pressed',String(nu));
+    deken.setAttribute('opacity', nu?'.8':'.25');
+    terug.forEach(t=>t.setAttribute('opacity', nu?'1':'.15'));
+    kwik.setAttribute('y', nu?'26':'64'); kwik.setAttribute('height', nu?'80':'42');
+    bt.textContent = nu
+      ? '2024: veel meer broeikasgassen. De deken is dikker, dus er blijft meer warmte bij de aarde. 2024 was het warmste jaar ooit gemeten: ongeveer 1,5 graad warmer dan rond 1850.'
+      : 'Rond 1850: er zaten minder broeikasgassen in de lucht. De deken was dun. Veel warmte kon terug de ruimte in.';
+  }
+  b1.addEventListener('click',()=>zetJaar(false)); b2.addEventListener('click',()=>zetJaar(true)); zetJaar(false);
+
+  // Kaart
+  const plekken={
+    dickson:'<b>Dickson Fjord, Oost-Groenland</b><br>Een smalle fjord tussen hoge bergen. In september 2023 stortte hier een berg van 1,2 kilometer hoog in het water.',
+    pituffik:'<b>Pituffik, Noordwest-Groenland</b><br>Satellietfoto\'s van 1973 en 2022 laten zien dat de gletsjers hier kleiner en smaller zijn geworden.',
+    nederland:'<b>Nederland</b><br>Ver van het ijs, maar toch merken we het: de zee bij onze kust stijgt nu ongeveer 3 millimeter per jaar.'
+  };
+  const info=document.getElementById('plekInfo');
+  document.querySelectorAll('.pin').forEach(p=>{
+    const toon=()=>{info.innerHTML=plekken[p.dataset.plek]};
+    p.addEventListener('click',toon);
+    p.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toon()}});
+  });
+
+  // Scene: ijskap aan de kust
+  const warm=document.getElementById('warm'), gt=document.getElementById('grondTekst');
+  const $=id=>document.getElementById(id);
+  const ijskleur=['#F7FAFC','#E8EEF1','#D3DADC','#BFC6C4'];
+  const teksten=[
+    'Vroeger: de ijskap is dik en wit. In de zomer smelt er een beetje, maar in de winter valt er weer sneeuw bij.',
+    'Iets warmer: er smelt meer ijs dan er sneeuw bijkomt. Op het ijs ontstaan meertjes en beekjes van smeltwater.',
+    'Warmer: de ijskap wordt dunner en grauwer. Er breken meer ijsbergen af. Het water stroomt naar zee.',
+    'Nog warmer: de zeespiegel stijgt. Aan de rand ligt kale rots, en daar gaan planten groeien.'
+  ];
+  function zetWarm(){
+    const t=+warm.value, s=[1,.88,.74,.6][t], sx=[1,.96,.88,.78][t], dz=[0,-6,-12,-20][t];
+    $('ijskap').setAttribute('transform','translate(0 232) scale('+sx+' '+s+') translate(0 -232)');
+    $('ijs').setAttribute('fill',ijskleur[t]);
+    $('smelt').setAttribute('opacity', t===0?'0':'1');
+    $('zeegroep').setAttribute('transform','translate(0 '+dz+')');
+    $('zee').setAttribute('height',110-dz);
+    $('b2').setAttribute('opacity', t>=1?'1':'0');
+    $('b3').setAttribute('opacity', t>=2?'1':'0');
+    $('planten').setAttribute('opacity', t>=3?'1':'0');
+    $('zonbol').setAttribute('r',24+t*4);
+    gt.textContent=teksten[t];
+  }
+  warm.addEventListener('input',zetWarm); zetWarm();
+
+  // Toets
+  const vragen=[
+    {v:'Waardoor smelten de ijskappen?',o:['Doordat er te veel ijsberen op lopen','Door klimaatverandering: de lucht en het zeewater worden warmer','Doordat er meer sneeuw valt'],g:1,u:'Broeikasgassen werken als een deken. Daardoor worden de lucht en het zeewater warmer. Dat laat het ijs smelten.'},
+    {v:'Waarom stijgt de zee als een ijskap smelt?',o:['Doordat het smeltwater van het land in de zee stroomt','Doordat het zeewater kouder wordt','Doordat er minder vissen in de zee zwemmen'],g:0,u:'De ijskap ligt op het land. Als het ijs smelt, komt er water bij in de zee. IJs dat al op zee drijft, laat de zee niet stijgen als het smelt.'},
+    {v:'Waarom stortte de berg bij de Dickson Fjord in?',o:['Doordat er een vulkaan uitbarstte','Doordat mensen er een tunnel groeven','Doordat de gletsjer onder de berg dunner werd en de rots niet meer tegenhield'],g:2,u:'Door het smelten werd het ijs aan de voet van de berg dunner. Toen kon het ijs de rotswand niet meer tegenhouden.'},
+    {v:'Kijk naar de cirkel. Waarom smelt donker ijs sneller dan wit ijs?',o:['Donker ijs is zachter','Donker ijs neemt meer zonlicht op, net als een zwart T-shirt','Donker ijs ligt dichter bij de zon'],g:1,u:'Wit ijs kaatst veel zonlicht terug. Donker ijs neemt meer zonlicht op en wordt warmer. Daardoor smelt er nog meer.'}
+  ];
+  const quiz=document.getElementById('quiz'), score=document.getElementById('score'); let goed=0, klaar=0;
+  vragen.forEach((q,i)=>{
+    const blok=document.createElement('div'); blok.className='vraag';
+    blok.innerHTML='<b>'+(i+1)+'. '+q.v+'</b><div class="opties"></div><p class="terug" aria-live="polite"></p>';
+    const opties=blok.querySelector('.opties'), terugP=blok.querySelector('.terug');
+    q.o.forEach((tekst,j)=>{
+      const k=document.createElement('button'); k.type='button'; k.textContent=tekst;
+      k.addEventListener('click',()=>{
+        if(blok.dataset.klaar) return; blok.dataset.klaar='1'; klaar++;
+        [...opties.children].forEach(x=>x.disabled=true);
+        const juist=opties.children[q.g];
+        juist.classList.add('goed'); juist.textContent='✓ '+juist.textContent;
+        if(j===q.g){terugP.className='terug ok';terugP.textContent='Goed! '+q.u;goed++}
+        else{k.classList.add('fout');k.textContent='✗ '+k.textContent;terugP.className='terug nee';terugP.textContent='Niet helemaal. Het goede antwoord heeft een vinkje. '+q.u}
+        if(klaar===vragen.length) score.textContent=goed+' van de '+vragen.length+' goed!';
+      });
+      opties.appendChild(k);
+    });
+    quiz.appendChild(blok);
+  });
+
+  // Woorduitleg
+  const pop=document.getElementById('pop'); let openW=null;
+  document.querySelectorAll('.woord').forEach(w=>{
+    w.setAttribute('aria-describedby','pop');
+    w.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(openW===w){pop.hidden=true;openW=null;return}
+      pop.textContent=w.dataset.u; pop.hidden=false; openW=w;
+      const r=w.getBoundingClientRect(), pw=Math.min(300,window.innerWidth-24);
+      pop.style.left=Math.max(12,Math.min(r.left,window.innerWidth-pw-12))+'px';
+      pop.style.top=(r.bottom+8)+'px';
+    });
+  });
+  document.addEventListener('click',()=>{pop.hidden=true;openW=null});
+  window.addEventListener('scroll',()=>{pop.hidden=true;openW=null},{passive:true});
+
+  // Voorlezen
+  const kan='speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+  document.querySelectorAll('.voorlees').forEach(b=>{
+    if(!kan){b.hidden=true;return}
+    b.addEventListener('click',()=>{
+      try{
+        const doel=b.closest('.tek');
+        const tekst=[...doel.querySelectorAll('h3,p:not(.bron)')].map(x=>x.textContent).join('. ');
+        speechSynthesis.cancel();
+        const u=new SpeechSynthesisUtterance(tekst); u.lang='nl-NL'; u.rate=.9;
+        const stem=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('nl')); if(stem) u.voice=stem;
+        speechSynthesis.speak(u);
+      }catch(e){b.textContent='Voorlezen lukt niet op dit apparaat'}
+    });
+  });
+})();
+</script>
+</body>
+</html>
